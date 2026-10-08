@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/IndustrialPlanGenerator.Data/">
+    <Project Path="IndustrialPlanGenerator.Data/IndustrialPlanGenerator.Data.Mongo/IndustrialPlanGenerator.Data.Mongo.csproj" />
+    <Project Path="IndustrialPlanGenerator.Data/IndustrialPlanGenerator.Data.Postgres/IndustrialPlanGenerator.Data.Postgres.csproj" />
+  </Folder>
+  <Folder Name="/IndustrialPlanGenerator.Web/">
+    <Project Path="IndustrialPlanGenerator.Web/IndustrialPlanGenerator.Web.Client/IndustrialPlanGenerator.Web.Client.csproj" />
+    <Project Path="IndustrialPlanGenerator.Web/IndustrialPlanGenerator.Web.Server/IndustrialPlanGenerator.Web.Server.csproj" />
+  </Folder>
+  <Project Path="IndustrialPlanGenerator.Domain/IndustrialPlanGenerator.Domain.csproj" />
+  <Project Path="IndustrialPlanGenerator.Services/IndustrialPlanGenerator.Services.csproj" />
+  <Project Path="IndustrialPlanGenerator.Tests/IndustrialPlanGenerator.Tests.csproj" />
+</Solution>
