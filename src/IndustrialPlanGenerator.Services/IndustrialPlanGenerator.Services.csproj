@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\IndustrialPlanGenerator.Domain\IndustrialPlanGenerator.Domain.csproj" />
+    <ProjectReference Include="..\IndustrialPlanGenerator.Data\IndustrialPlanGenerator.Data.Mongo\IndustrialPlanGenerator.Data.Mongo.csproj" />
+    <ProjectReference Include="..\IndustrialPlanGenerator.Data\IndustrialPlanGenerator.Data.Postgres\IndustrialPlanGenerator.Data.Postgres.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>
