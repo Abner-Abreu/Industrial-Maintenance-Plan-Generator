@@ -11,4 +11,8 @@ public class PlanValidation: Entity
     public required string Observations {get;set;}
     public required ValidationResult Result {get;set;}
     public required bool NewPlanRequired {get;set;}
+    
+    //Navigation properties only
+    public MaintenancePlan MaintenancePlan {get;set;} = null!;
+    public PlantManager PlantManager {get;set;} = null!;
 }
