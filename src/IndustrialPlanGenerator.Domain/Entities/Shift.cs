@@ -9,5 +9,5 @@ public class Shift : Entity
     public required string Schedule { get; set; }
 
     //Navigation properties only
-    public ICollection<Operator> Operators {set;get;} = new List<Operator>();
+    public ICollection<Operator> Operators {get;set;} = new List<Operator>();
 }

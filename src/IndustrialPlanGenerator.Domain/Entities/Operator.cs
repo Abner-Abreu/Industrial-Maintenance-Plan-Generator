@@ -10,8 +10,8 @@ public class Operator : Entity
 
     //Navigation properties only
 
-    public Shift Shift {set;get;} = null!;
-    public ICollection<ProductionLine> Lines {set;get;} = new List<ProductionLine>();
-    public ICollection<PlanAssignment> Plans {set;get;} = new List<PlanAssignment>();
-    public ICollection<ReinspectionRequest> ReinspectionRequests {set;get;} = new List<ReinspectionRequest>();
+    public Shift Shift {get;set;} = null!;
+    public ICollection<ProductionLine> Lines {get;set;} = new List<ProductionLine>();
+    public ICollection<PlanAssignment> Plans {get;set;} = new List<PlanAssignment>();
+    public ICollection<ReinspectionRequest> ReinspectionRequests {get;set;} = new List<ReinspectionRequest>();
 }
