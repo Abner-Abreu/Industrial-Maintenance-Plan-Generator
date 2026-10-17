@@ -12,4 +12,9 @@ public class ReinspectionRequest: Entity
     public required ReinspeccionStatus Status {get;set;}
     public string? ManualResult {get;set;}
     public DateOnly? ResultDate {get;set;}
+
+    //Navigation properties only
+    public TaskExecution TaskExecution {get;set;} = null!;
+    public Operator Operator {get;set;} = null!;
+    public Technician Technician {get;set;} = null!;
 }
