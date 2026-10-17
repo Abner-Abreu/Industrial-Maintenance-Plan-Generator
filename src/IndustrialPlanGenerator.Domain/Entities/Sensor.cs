@@ -5,6 +5,9 @@ using IndustrialPlanGenerator.Domain.Enums;
 
 public class Sensor: Entity
 {
-    public required Guid Equipment {get;set;}
+    public required Guid EquipmentId {get;set;}
     public required SensorType  Type {get;set;}
+
+    //Navigation properties only
+    public EquipmentSystem Equipment{get;set;} = null!;
 }
