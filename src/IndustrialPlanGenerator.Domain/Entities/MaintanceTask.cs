@@ -11,4 +11,11 @@ public class MaintenanceTask : Entity
     public required Guid ThechnicianCreatorId {get;set;}
     public required DateOnly CreationDate {get;set;}
     public required PlanStatus Status {get;set;}
+
+    //Navigation properties only
+
+    public EquipmentSystem EquipmentSystem {get;set;} = null!;
+    public Technician Technician {get;set;} = null!;
+    public ICollection<PlanTask> PlanTasks {get;set;} = new List<PlanTask>();
+    public ICollection<TaskExecution> TaskExecutions {get;set;} = new List<TaskExecution>();
 }
