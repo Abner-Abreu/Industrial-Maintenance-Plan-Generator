@@ -10,7 +10,7 @@ public class MaintenanceTask : Entity
     public required Criticality Criticality {get;set;}
     public required Guid ThechnicianCreatorId {get;set;}
     public required DateOnly CreationDate {get;set;}
-    public required PlanStatus Status {get;set;}
+    public required TaskStatus Status {get;set;}
 
     //Navigation properties only
 
