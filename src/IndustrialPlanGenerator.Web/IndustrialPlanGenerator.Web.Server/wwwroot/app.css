@@ -60,16 +60,28 @@ a:hover {
 }
 
 .form-label {
-    font-size: 0.875rem;
-    font-weight: 500;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text);
 }
 
 .form-control {
+    padding: 0.625rem 0.875rem;
     font-family: var(--font-body);
-    border-color: var(--color-border);
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    color: var(--color-text);
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.form-control:focus {
+.form-control::placeholder {
+    color: var(--color-text-muted);
+    opacity: 0.6;
+}
+
+.form-control:hover:not(:focus):not(:disabled) {
     border-color: var(--color-accent);
-    box-shadow: 0 0 0 0.2rem rgba(23, 104, 229, 0.2);
 }
