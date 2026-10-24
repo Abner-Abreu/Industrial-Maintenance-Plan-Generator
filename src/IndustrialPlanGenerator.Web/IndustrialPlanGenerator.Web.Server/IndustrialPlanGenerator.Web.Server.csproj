@@ -17,4 +17,8 @@
     <ProjectReference Include="..\..\IndustrialPlanGenerator.Services\IndustrialPlanGenerator.Services.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Components\Layout\" />
+  </ItemGroup>
+
 </Project>

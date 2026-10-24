@@ -1,4 +1,4 @@
-using IndustrialPlanGenerator.Web.Client.Pages;
+// using IndustrialPlanGenerator.Web.Client.Pages;
 using IndustrialPlanGenerator.Web.Server.Components;
 
 var builder = WebApplication.CreateBuilder(args);
