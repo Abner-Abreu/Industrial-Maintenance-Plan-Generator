@@ -11,7 +11,7 @@ public class Operator : Entity
     //Navigation properties only
 
     public Shift Shift {get;set;} = null!;
-    public ICollection<ProductionLine> Lines {get;set;} = new List<ProductionLine>();
+    public ICollection<OperatorLine> Lines {get;set;} = new List<OperatorLine>();
     public ICollection<PlanAssignment> Plans {get;set;} = new List<PlanAssignment>();
     public ICollection<ReinspectionRequest> ReinspectionRequests {get;set;} = new List<ReinspectionRequest>();
 }
