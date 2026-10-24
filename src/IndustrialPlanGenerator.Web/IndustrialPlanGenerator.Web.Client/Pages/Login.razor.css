@@ -1,7 +1,18 @@
 .login-page {
     display: flex;
     min-height: 100vh;
-    background-color: var(--color-surface);
+    background-color: var(--color-primary);
+    background-image:
+            linear-gradient(
+                    to right,
+                    var(--color-primary) 0%,
+                    color-mix(in srgb, var(--color-primary) 90%, transparent) 55%,
+                    color-mix(in srgb, var(--color-primary) 0%, transparent) 100%
+            ),
+            url('/images/login-bg.jpg');
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
 }
 
 .login-hero {
@@ -11,8 +22,8 @@
     justify-content: center;
     min-width: 0;
     padding: 4rem;
-    background-color: var(--color-primary);
 }
+
 
 .hero-title {
     max-width: 560px;
