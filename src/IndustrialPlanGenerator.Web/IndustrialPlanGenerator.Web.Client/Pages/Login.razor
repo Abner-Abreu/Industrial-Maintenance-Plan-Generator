@@ -1,0 +1,55 @@
+@page "/login"
+@rendermode InteractiveWebAssembly
+
+<PageTitle>Login</PageTitle>
+
+<div class="login-page">
+    <section class="login-hero">
+        <h2 class="hero-title">Smart maintenance. Uninterrupted production.</h2>
+        <p class="hero-subtitle">Centralize your plans, improve team coordination, and make decisions with real-time data.</p>
+    </section>
+
+    <section class="login-panel">
+        <div class="login-container">
+            <h1 class="h4 login-title">Login</h1>
+
+            <form @onsubmit="Submit">
+                @if (_error is not null)
+                {
+                    <div class="alert alert-danger py-2" role="alert">@_error</div>
+                }
+
+                <div class="mb-3">
+                    <label for="username" class="form-label">User</label>
+                    <input id="username" class="form-control" autocomplete="username"
+                           @bind="_username" @bind:event="oninput"/>
+                </div>
+
+                <div class="mb-4">
+                    <label for="password" class="form-label">Password</label>
+                    <input id="password" type="password" class="form-control" autocomplete="current-password"
+                           @bind="_password" @bind:event="oninput"/>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">Continue</button>
+            </form>
+        </div>
+    </section>
+</div>
+
+@code {
+    private string _username = "";
+    private string _password = "";
+    private string? _error;
+
+    private void Submit()
+    {
+        if (string.IsNullOrWhiteSpace(_username) || string.IsNullOrEmpty(_password))
+        {
+            _error = "Introduce user and password.";
+            return;
+        }
+
+        _error = null;
+    }
+}

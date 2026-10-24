@@ -1,0 +1,91 @@
+.login-page {
+    display: flex;
+    min-height: 100vh;
+    background-color: var(--color-surface);
+}
+
+.login-hero {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+    padding: 4rem;
+    background-color: var(--color-primary);
+}
+
+.hero-title {
+    max-width: 560px;
+    margin: 0 0 1rem;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 400;
+    font-size: 46px;
+    line-height: 50px;
+    letter-spacing: -0.8px;
+    color: #fff;
+}
+
+.hero-subtitle {
+    max-width: 480px;
+    margin: 0;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 400;
+    font-size: 15px;
+    line-height: 24px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.login-panel {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 520px;
+    padding: 2rem;
+    background-color: var(--color-surface);
+}
+
+.login-container {
+    width: 100%;
+    max-width: 360px;
+    padding: 1.5rem;
+}
+
+.login-title {
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+@media (max-width: 1200px) {
+    .login-panel {
+        width: 440px;
+    }
+
+    .login-hero {
+        padding: 3rem;
+    }
+}
+
+@media (max-width: 992px) {
+    .login-panel {
+        width: 400px;
+        padding: 1.5rem;
+    }
+
+    .hero-title {
+        font-size: 38px;
+        line-height: 42px;
+    }
+}
+
+@media (max-width: 768px) {
+    .login-hero {
+        display: none;
+    }
+
+    .login-panel {
+        flex: 1 1 auto;
+        width: 100%;
+        padding: 1rem;
+    }
+}
