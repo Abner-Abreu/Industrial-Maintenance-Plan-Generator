@@ -75,10 +75,28 @@
 }
 
 
+/*login card texts*/
 .login-title {
     margin-bottom: 1.5rem;
-    text-align: center;
+    margin-top: 0;
+    text-align: left;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 400;
+    line-height: 42px;
+    letter-spacing: -0.2px;
+    color: var(--color-text);
 }
+
+.login-eyebrow {
+    display: flex;
+    font-size: 9px;
+    font-weight: 800;
+    line-height: 13.5px;
+    letter-spacing: 1.2px;
+    color: var(--color-accent);
+    margin-bottom: 0;
+}
+/*login card texts*/
 
 /*login button*/
 .login-button {

@@ -3,6 +3,8 @@
 
 <PageTitle>Login</PageTitle>
 
+@* TODO: check on error component logic not working *@
+
 <div class="login-page">
     <section class="login-hero">
         <h1 class="hero-title">Smart maintenance. Uninterrupted production.</h1>
@@ -11,7 +13,8 @@
 
     <section class="login-panel">
         <div class="login-container">
-            <h1 class="h4 login-title">Login</h1>
+            <p class="login-eyebrow">WELCOME</p>
+            <h1 class="login-title">Access your workspace</h1>
             <form @onsubmit="Submit" class="login-form">
                 @if (_error is not null)
                 {
