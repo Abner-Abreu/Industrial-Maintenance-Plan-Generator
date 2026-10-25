@@ -15,6 +15,15 @@ public interface IUserRepository
     Task<UserRole?> GetRoleAsync(Guid id, CancellationToken ct = default);
 
     Task AddAsync(User User, CancellationToken ct = default);
+
+     //PlantManager
+    Task<PlantManager?> GetPlantManagerAsync(Guid id, CancellationToken ct = default);
+    Task AddPlantManagerAsync(PlantManager manager, CancellationToken ct = default);
+
+    // Administrator
+    Task<Administrator?> GetAdministratorAsync(Guid id, CancellationToken ct = default);
+    Task AddAdministratorAsync(Administrator admin, CancellationToken ct = default);
+    
     void Update(User User);
     void Remove(User User);
 }
