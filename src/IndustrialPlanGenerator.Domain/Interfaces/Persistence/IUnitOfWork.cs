@@ -3,7 +3,7 @@ namespace IndustrialPlanGenerator.Domain.Persistence;
 using IndustrialPlanGenerator.Domain.Repositories;
 public interface IUnitOfWork
 {
-    IEquipmentSystemRepository Equiments {get;}
+    IEquipmentSystemRepository Equipments {get;}
     IMaintenancePlanRepository Plans {get;}
     IMaintenanceTaskRepository Tasks {get;}
     IOperatorRepository Operators {get;}
