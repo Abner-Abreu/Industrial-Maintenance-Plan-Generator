@@ -10,10 +10,7 @@ public interface IPlanAssignmentRepository
 
     // RI-35
     Task<bool> IsThereAssignmentAsync(Guid planId, Guid operatorId, CancellationToken ct = default);
-
-    // RI-30
-    Task<bool> IsThereDateOverlapAsync(Guid operatorId, Guid lineId, DateTime from, DateTime till, CancellationToken ct = default);
-
+    
     Task AddAsync(PlanAssignment assignment, CancellationToken ct = default);
     void Update(PlanAssignment assignment);
     void Remove(PlanAssignment assignment);
