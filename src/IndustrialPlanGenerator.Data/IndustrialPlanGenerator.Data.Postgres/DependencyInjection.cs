@@ -13,7 +13,9 @@ public static class DependencyInjection
             ?? throw new InvalidOperationException("Connection string 'Postgres' not found.");
 
         services.AddDbContext<AppDbContext>(options =>
-            options.UseNpgsql(connectionString));
+            options.UseNpgsql(
+                connectionString, 
+                npgsqlOptions => npgsqlOptions.EnableRetryOnFailure()));
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
