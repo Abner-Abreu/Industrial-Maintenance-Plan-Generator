@@ -53,12 +53,13 @@
     justify-content: center;
     width: 520px;
     padding: 2rem;
-    background-color: var(--color-surface);
 }
 
 .login-container {
     width: 100%;
     max-width: 360px;
+    background-color: #fff;
+    border-radius: 25px;
     padding: 1.5rem;
 }
 
