@@ -1,9 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  
+ <!-- Capa Application (Clean Architecture): solo depende de Domain.
+       NO debe referenciar Data.Postgres ni Data.Mongo: accede a los datos
+       a través de las interfaces de repositorio que declara Domain.
+       Los DTOs viven en la carpeta Contracts de este proyecto y los usa también Web.Client. -->
 
   <ItemGroup>
     <ProjectReference Include="..\IndustrialPlanGenerator.Domain\IndustrialPlanGenerator.Domain.csproj" />
-    <ProjectReference Include="..\IndustrialPlanGenerator.Data\IndustrialPlanGenerator.Data.Mongo\IndustrialPlanGenerator.Data.Mongo.csproj" />
-    <ProjectReference Include="..\IndustrialPlanGenerator.Data\IndustrialPlanGenerator.Data.Postgres\IndustrialPlanGenerator.Data.Postgres.csproj" />
+    
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.0" />
   </ItemGroup>
 
   <PropertyGroup>

@@ -13,6 +13,14 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.12" />
   </ItemGroup>
 
+
+
+  <!-- El cliente usa los DTOs de Services/Contracts. Services no referencia Data.*,
+       así que EF Core y el driver de Mongo no llegan al navegador. -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\IndustrialPlanGenerator.Services\IndustrialPlanGenerator.Services.csproj" />
+  </ItemGroup>
+
   <ItemGroup>
     <_ContentIncludedByDefault Remove="wwwroot\images\login-bg.jpg" />
   </ItemGroup>

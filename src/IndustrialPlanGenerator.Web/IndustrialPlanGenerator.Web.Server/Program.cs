@@ -1,5 +1,7 @@
 // using IndustrialPlanGenerator.Web.Client.Pages;
 using IndustrialPlanGenerator.Web.Server.Components;
+using IndustrialPlanGenerator.Services;
+using IndustrialPlanGenerator.Web.Server.Errors;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,7 +9,16 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveWebAssemblyComponents();
 
+builder.Services.AddApplicationServices();
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+
 var app = builder.Build();
+
+
+// Para /api responde GlobalExceptionHandler; para las páginas Blazor, /Error.
+app.UseExceptionHandler("/Error", createScopeForErrors: true);
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -16,7 +27,7 @@ if (app.Environment.IsDevelopment())
 }
 else
 {
-    app.UseExceptionHandler("/Error", createScopeForErrors: true);
+    
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
