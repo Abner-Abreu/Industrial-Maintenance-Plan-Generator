@@ -1,6 +1,7 @@
 namespace IndustrialPlanGenerator.Data.Postgres.Repositories;
 
 using IndustrialPlanGenerator.Domain.Entities;
+using IndustrialPlanGenerator.Domain.Enums;
 using IndustrialPlanGenerator.Domain.Repositories;
 using IndustrialPlanGenerator.Data.Postgres;
 using Microsoft.EntityFrameworkCore;
@@ -16,13 +17,13 @@ public class UserRepository : IUserRepository
     {
         return _context.Users.FirstOrDefaultAsync(u => u.Id == id, ct);
     }
-    public Task<User?> GetByUsernameAsync(string username, CancellationToken ct = default)
+    public Task<User?> GetByUserNameAsync(string userName, CancellationToken ct = default)
     {
-        return _context.Users.FirstOrDefaultAsync(u => u.Name == username, ct);
+        return _context.Users.FirstOrDefaultAsync(u => u.Name == userName, ct);
     }
-    public Task<bool> ExistsByUsernameAsync(string username, CancellationToken ct = default) 
+    public Task<bool> IsUserNameExistingAsync(string userName, CancellationToken ct = default) 
     {
-        return _context.Users.AnyAsync(u => u.Name == username, ct);
+        return _context.Users.AnyAsync(u => u.Name == userName, ct);
     }
     public async Task AddAsync(User user, CancellationToken ct = default)
     {
@@ -36,6 +37,22 @@ public class UserRepository : IUserRepository
     {
         _context.Users.Update(user);
     }
+
+    public Task<IReadOnlyList<User>> GetAllAsync(CancellationToken ct = default)
+    {
+        return _context.Users
+            .ToListAsync(ct)
+            .ContinueWith(t => (IReadOnlyList<User>)t.Result, ct);
+    }
+
+    public Task<UserRole?> GetRoleAsync(Guid id, CancellationToken ct = default)
+    {
+        return _context.Users
+            .Where(u => u.Id == id)
+            .Select(u => (UserRole?)u.Role)
+            .FirstOrDefaultAsync(ct);
+    }
+
     // PlantManager
     public Task<PlantManager?> GetPlantManagerAsync(Guid id, CancellationToken ct = default)
     {
