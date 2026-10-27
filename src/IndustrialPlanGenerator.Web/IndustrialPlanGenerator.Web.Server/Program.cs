@@ -1,6 +1,8 @@
 // using IndustrialPlanGenerator.Web.Client.Pages;
 using IndustrialPlanGenerator.Web.Server.Components;
 using IndustrialPlanGenerator.Services;
+using IndustrialPlanGenerator.Data.Postgres;
+using IndustrialPlanGenerator.Data.Mongo;
 using IndustrialPlanGenerator.Web.Server.Errors;
 using IndustrialPlanGenerator.Web.Server.Auth;
 using IndustrialPlanGenerator.Web.Server.Endpoints;
@@ -10,6 +12,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveWebAssemblyComponents();
+
+// Register Data Layers
+builder.Services.AddPostgresData(builder.Configuration);
+builder.Services.AddMongoData(builder.Configuration);
 
 builder.Services.AddApplicationServices();
 builder.Services.AddJwtAuthentication(builder.Configuration);

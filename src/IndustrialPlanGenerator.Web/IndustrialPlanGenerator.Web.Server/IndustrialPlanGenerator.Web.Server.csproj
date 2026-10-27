@@ -15,6 +15,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\IndustrialPlanGenerator.Services\IndustrialPlanGenerator.Services.csproj" />
+    <ProjectReference Include="..\..\IndustrialPlanGenerator.Data\IndustrialPlanGenerator.Data.Postgres\IndustrialPlanGenerator.Data.Postgres.csproj" />
+    <ProjectReference Include="..\..\IndustrialPlanGenerator.Data\IndustrialPlanGenerator.Data.Mongo\IndustrialPlanGenerator.Data.Mongo.csproj" />
   </ItemGroup>
 
   <ItemGroup>
