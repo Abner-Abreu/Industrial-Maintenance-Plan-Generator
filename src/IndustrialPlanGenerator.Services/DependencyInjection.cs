@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using IndustrialPlanGenerator.Services.Contracts.Auth;
+using IndustrialPlanGenerator.Services.Auth;
 
 namespace IndustrialPlanGenerator.Services;
 
