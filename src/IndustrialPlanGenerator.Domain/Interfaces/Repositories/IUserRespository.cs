@@ -5,8 +5,6 @@ using IndustrialPlanGenerator.Domain.Enums;
 
 public interface IUserRepository
 {
-    public interface IUserRepository
-{
     Task<User?> GetByIdAsync(Guid id, CancellationToken ct = default);
     Task<User?> GetByUserNameAsync(string userName, CancellationToken ct = default);
     Task<IReadOnlyList<User>> GetAllAsync(CancellationToken ct = default);
@@ -14,9 +12,9 @@ public interface IUserRepository
     Task<bool> IsUserNameExistingAsync(string userName, CancellationToken ct = default);
     Task<UserRole?> GetRoleAsync(Guid id, CancellationToken ct = default);
 
-    Task AddAsync(User User, CancellationToken ct = default);
+    Task AddAsync(User user, CancellationToken ct = default);
 
-     //PlantManager
+    // PlantManager
     Task<PlantManager?> GetPlantManagerAsync(Guid id, CancellationToken ct = default);
     Task AddPlantManagerAsync(PlantManager manager, CancellationToken ct = default);
 
@@ -24,7 +22,6 @@ public interface IUserRepository
     Task<Administrator?> GetAdministratorAsync(Guid id, CancellationToken ct = default);
     Task AddAdministratorAsync(Administrator admin, CancellationToken ct = default);
     
-    void Update(User User);
-    void Remove(User User);
-}
+    void Update(User user);
+    void Remove(User user);
 }

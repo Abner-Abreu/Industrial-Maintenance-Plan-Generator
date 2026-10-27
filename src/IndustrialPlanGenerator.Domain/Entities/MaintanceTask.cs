@@ -11,6 +11,7 @@ public class MaintenanceTask : Entity
     public required Guid ThechnicianCreatorId {get;set;}
     public required DateOnly CreationDate {get;set;}
     public required TaskStatus Status {get;set;}
+    public required MaintenanceType Type {get;set;}
 
     //Navigation properties only
 

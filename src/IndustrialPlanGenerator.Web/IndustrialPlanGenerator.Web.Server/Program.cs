@@ -2,6 +2,8 @@
 using IndustrialPlanGenerator.Web.Server.Components;
 using IndustrialPlanGenerator.Services;
 using IndustrialPlanGenerator.Web.Server.Errors;
+using IndustrialPlanGenerator.Web.Server.Auth;
+using IndustrialPlanGenerator.Web.Server.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +12,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveWebAssemblyComponents();
 
 builder.Services.AddApplicationServices();
+builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
@@ -34,7 +37,10 @@ else
 app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
+app.UseAuthorization();
 app.UseAntiforgery();
+app.MapAuthEndpoints();
 
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
