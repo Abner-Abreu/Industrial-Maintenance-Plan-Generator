@@ -1,4 +1,4 @@
-using IndustrialPlanGenerator.Domain.Repositories;
+using IndustrialPlanGenerator.Domain.Persistence;
 using IndustrialPlanGenerator.Services.Contracts.Auth;
 using IndustrialPlanGenerator.Services.Exceptions;
 
@@ -6,7 +6,7 @@ namespace IndustrialPlanGenerator.Services.Auth;
 
 /// <inheritdoc cref="IAuthService"/>
 public sealed class AuthService(
-    IUserRepository users,
+    IUnitOfWork uow,
     IPasswordHasher hasher,
     ITokenIssuer tokens) : IAuthService
 {
@@ -15,7 +15,7 @@ public sealed class AuthService(
         if (string.IsNullOrWhiteSpace(request.UserName) || string.IsNullOrEmpty(request.Password))
             throw new AuthenticationFailedException();
 
-        var user = await users.GetByUserNameAsync(request.UserName.Trim(), ct);
+        var user = await uow.Users.GetByUserNameAsync(request.UserName.Trim(), ct);
 
         // Se verifica siempre, aunque el usuario no exista (hash nulo), para que el tiempo de
         // respuesta no permita averiguar qué usuarios están registrados.
