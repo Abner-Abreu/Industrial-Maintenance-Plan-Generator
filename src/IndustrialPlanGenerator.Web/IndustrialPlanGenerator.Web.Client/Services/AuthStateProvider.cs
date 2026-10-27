@@ -18,7 +18,7 @@ public class JwtAuthStateProvider(ILocalStorageService storage) : Authentication
         var jwt = new JwtSecurityTokenHandler().ReadJwtToken(token);
         if (jwt.ValidTo < DateTime.UtcNow) return Anon;
 
-        var identity = new ClaimsIdentity(jwt.Claims, "jwt");
+        var identity = new ClaimsIdentity(jwt.Claims, "jwt", "name", "role");
         return new AuthenticationState(new ClaimsPrincipal(identity));
     }
 
