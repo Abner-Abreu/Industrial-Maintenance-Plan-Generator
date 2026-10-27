@@ -1,5 +1,10 @@
 @page "/login"
+@using IndustrialPlanGenerator.Web.Client.Services
+@attribute [AllowAnonymous]
 @rendermode InteractiveWebAssembly
+
+@inject AuthService Auth
+@inject NavigationManager Nav
 
 <PageTitle>Login</PageTitle>
 
@@ -38,12 +43,18 @@
 </div>
 
 @code {
+    [SupplyParameterFromQuery(Name = "returnUrl")]
+    public string? ReturnUrl { get; set; }
+
     private string _username = "";
     private string _password = "";
     private string? _error;
+    private bool _loading;
 
-    private void Submit()
+    private async Task Submit()
     {
+        if (_loading) return;
+
         if (string.IsNullOrWhiteSpace(_username) || string.IsNullOrEmpty(_password))
         {
             _error = "Introduce user and password.";
@@ -51,5 +62,34 @@
         }
 
         _error = null;
+        _loading = true;
+
+        try
+        {
+            var ok = await Auth.LoginAsync(new LoginDto
+            {
+                Username = _username.Trim(),
+                Password = _password
+            });
+
+            if (ok)
+            {
+                var returnUrl = string.IsNullOrWhiteSpace(ReturnUrl) ? "/" : ReturnUrl;
+                Nav.NavigateTo(returnUrl, replace: true);
+            }
+            else
+            {
+                _error = "User or password is incorrect.";
+                _password = "";
+            }
+        }
+        catch (HttpRequestException)
+        {
+            _error = "Couldn't connect to server.";
+        }
+        finally
+        {
+            _loading = false;
+        }
     }
 }
