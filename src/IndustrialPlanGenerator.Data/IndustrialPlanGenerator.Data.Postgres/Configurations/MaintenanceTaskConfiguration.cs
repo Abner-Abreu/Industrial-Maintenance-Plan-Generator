@@ -35,7 +35,7 @@ public class MaintenanceTaskConfiguration : IEntityTypeConfiguration<Maintenance
             .IsRequired()
             .HasConversion<string>();
 
-        builder.Property(t => t.ThechnicianCreatorId)
+        builder.Property(t => t.TechnicianCreatorId)
             .HasColumnName("technician_creator_id")
             .IsRequired();
 
@@ -64,7 +64,7 @@ public class MaintenanceTaskConfiguration : IEntityTypeConfiguration<Maintenance
         // RI-09: FK maintenance_tasks.technician_creator_id -> technicians.id
         builder.HasOne(t => t.Technician)
             .WithMany(t => t.MaintenanceTasks)
-            .HasForeignKey(t => t.ThechnicianCreatorId)
+            .HasForeignKey(t => t.TechnicianCreatorId)
             .HasConstraintName("fk_maintenance_task_technician")
             .OnDelete(DeleteBehavior.Restrict);
 
@@ -79,7 +79,7 @@ public class MaintenanceTaskConfiguration : IEntityTypeConfiguration<Maintenance
         builder.HasIndex(t => t.SystemId)
             .HasDatabaseName("ix_maintenance_task_system_id");
 
-        builder.HasIndex(t => t.ThechnicianCreatorId)
+        builder.HasIndex(t => t.TechnicianCreatorId)
             .HasDatabaseName("ix_maintenance_task_technician_creator_id");
 
         // Relationships

@@ -71,7 +71,7 @@ public class MaintenancePlanConfiguration : IEntityTypeConfiguration<Maintenance
         // 1:N with PlanValidation
         builder.HasMany(p => p.PlanValidations)
             .WithOne(pv => pv.MaintenancePlan)
-            .HasForeignKey(pv => pv.MaintancePlan)
+            .HasForeignKey(pv => pv.MaintenancePlanId)
             .HasConstraintName("fk_plan_validation_plan")
             .OnDelete(DeleteBehavior.Cascade);
 
