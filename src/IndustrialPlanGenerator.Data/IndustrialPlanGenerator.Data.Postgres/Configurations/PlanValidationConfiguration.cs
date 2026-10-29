@@ -17,7 +17,7 @@ public class PlanValidationConfiguration : IEntityTypeConfiguration<PlanValidati
 
         builder.HasKey(pv => pv.Id);
 
-        builder.Property(pv => pv.MaintancePlan)
+        builder.Property(pv => pv.MaintenancePlanId)
             .HasColumnName("plan_id")
             .IsRequired();
 
@@ -48,7 +48,7 @@ public class PlanValidationConfiguration : IEntityTypeConfiguration<PlanValidati
         // RI-14: FK plan_validations.plan_id -> maintenance_plans.id
         builder.HasOne(pv => pv.MaintenancePlan)
             .WithMany(p => p.PlanValidations)
-            .HasForeignKey(pv => pv.MaintancePlan)
+            .HasForeignKey(pv => pv.MaintenancePlanId)
             .HasConstraintName("fk_plan_validation_plan")
             .OnDelete(DeleteBehavior.Cascade);
 
@@ -60,7 +60,7 @@ public class PlanValidationConfiguration : IEntityTypeConfiguration<PlanValidati
             .OnDelete(DeleteBehavior.Restrict);
 
         // Indexes for FKs
-        builder.HasIndex(pv => pv.MaintancePlan)
+        builder.HasIndex(pv => pv.MaintenancePlanId)
             .HasDatabaseName("ix_plan_validation_plan_id");
 
         builder.HasIndex(pv => pv.PlantManagerId)
