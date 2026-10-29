@@ -5,7 +5,7 @@ public class OperatorLine
     public required Guid OperatorId { get; set; }
     public required Guid LineId { get; set; }
 
-    // Navigation properties only
-    public Operator Operator { get; set; } = null!;
-    public ProductionLine Line { get; set; } = null!;
+    // Navigation properties
+    public required Operator Operator { get; set; }
+    public required ProductionLine Line { get; set; }
 }
