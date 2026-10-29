@@ -12,7 +12,7 @@ public class ReinspectionRequestConfiguration : IEntityTypeConfiguration<Reinspe
         builder.ToTable("reinspection_requests", t =>
         {
             t.HasCheckConstraint("ck_reinspection_request_status",
-                $"status IN ('{ReinspeccionStatus.Pending}', '{ReinspeccionStatus.InProgress}', '{ReinspeccionStatus.Completed}')");
+                $"status IN ('{ReinspectionStatus.Pending}', '{ReinspectionStatus.InProgress}', '{ReinspectionStatus.Completed}')");
         });
 
         builder.HasKey(rr => rr.Id);
