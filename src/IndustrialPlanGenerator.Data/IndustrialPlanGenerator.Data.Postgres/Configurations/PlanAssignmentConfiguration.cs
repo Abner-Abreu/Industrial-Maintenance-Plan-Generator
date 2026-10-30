@@ -20,6 +20,10 @@ public class PlanAssignmentConfiguration : IEntityTypeConfiguration<PlanAssignme
             .HasColumnName("operator_id")
             .IsRequired();
 
+        builder.Property(pa => pa.AssignmentDate)
+            .HasColumnName("assignment_date")
+            .IsRequired();
+
         // RI-15: FK plan_assignments.plan_id -> maintenance_plans.id
         builder.HasOne(pa => pa.MaintenancePlan)
             .WithMany(p => p.PlanAssignments)
