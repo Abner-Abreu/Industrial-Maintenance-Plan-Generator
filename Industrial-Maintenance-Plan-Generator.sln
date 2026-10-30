@@ -1,0 +1,78 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.002.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{26C553BE-D47A-4AA2-8B41-C8B5CDF96E82}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IndustrialPlanGenerator.Domain", "src\IndustrialPlanGenerator.Domain\IndustrialPlanGenerator.Domain.csproj", "{B7CA61BD-B873-4A02-BF58-8BE4EC908B32}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IndustrialPlanGenerator.Services", "src\IndustrialPlanGenerator.Services\IndustrialPlanGenerator.Services.csproj", "{02E59E3C-BF5C-4BD6-9C24-887B03DE791D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IndustrialPlanGenerator.Tests", "src\IndustrialPlanGenerator.Tests\IndustrialPlanGenerator.Tests.csproj", "{1DAED562-22F1-4FA9-B9D9-C677AC1BE9BD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IndustrialPlanGenerator.Data", "IndustrialPlanGenerator.Data", "{5DBE7A84-8411-4890-B6F7-DE972382C449}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IndustrialPlanGenerator.Data.Mongo", "src\IndustrialPlanGenerator.Data\IndustrialPlanGenerator.Data.Mongo\IndustrialPlanGenerator.Data.Mongo.csproj", "{3269FD2C-428A-45FA-B676-67F540E8ADDF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IndustrialPlanGenerator.Data.Postgres", "src\IndustrialPlanGenerator.Data\IndustrialPlanGenerator.Data.Postgres\IndustrialPlanGenerator.Data.Postgres.csproj", "{82C7D23F-E5D0-435A-8244-B68C79FAE65C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IndustrialPlanGenerator.Web", "IndustrialPlanGenerator.Web", "{2AE3FAD1-3384-47B8-A582-00E76625C1A0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IndustrialPlanGenerator.Web.Client", "src\IndustrialPlanGenerator.Web\IndustrialPlanGenerator.Web.Client\IndustrialPlanGenerator.Web.Client.csproj", "{855CA371-8197-414E-96EF-11377127A51E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IndustrialPlanGenerator.Web.Server", "src\IndustrialPlanGenerator.Web\IndustrialPlanGenerator.Web.Server\IndustrialPlanGenerator.Web.Server.csproj", "{59841178-47A2-4861-BF1A-BF5E44AD649A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B7CA61BD-B873-4A02-BF58-8BE4EC908B32}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7CA61BD-B873-4A02-BF58-8BE4EC908B32}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B7CA61BD-B873-4A02-BF58-8BE4EC908B32}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B7CA61BD-B873-4A02-BF58-8BE4EC908B32}.Release|Any CPU.Build.0 = Release|Any CPU
+		{02E59E3C-BF5C-4BD6-9C24-887B03DE791D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{02E59E3C-BF5C-4BD6-9C24-887B03DE791D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{02E59E3C-BF5C-4BD6-9C24-887B03DE791D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{02E59E3C-BF5C-4BD6-9C24-887B03DE791D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1DAED562-22F1-4FA9-B9D9-C677AC1BE9BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1DAED562-22F1-4FA9-B9D9-C677AC1BE9BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1DAED562-22F1-4FA9-B9D9-C677AC1BE9BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1DAED562-22F1-4FA9-B9D9-C677AC1BE9BD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3269FD2C-428A-45FA-B676-67F540E8ADDF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3269FD2C-428A-45FA-B676-67F540E8ADDF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3269FD2C-428A-45FA-B676-67F540E8ADDF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3269FD2C-428A-45FA-B676-67F540E8ADDF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{82C7D23F-E5D0-435A-8244-B68C79FAE65C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{82C7D23F-E5D0-435A-8244-B68C79FAE65C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{82C7D23F-E5D0-435A-8244-B68C79FAE65C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{82C7D23F-E5D0-435A-8244-B68C79FAE65C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{855CA371-8197-414E-96EF-11377127A51E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{855CA371-8197-414E-96EF-11377127A51E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{855CA371-8197-414E-96EF-11377127A51E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{855CA371-8197-414E-96EF-11377127A51E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{59841178-47A2-4861-BF1A-BF5E44AD649A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59841178-47A2-4861-BF1A-BF5E44AD649A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59841178-47A2-4861-BF1A-BF5E44AD649A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59841178-47A2-4861-BF1A-BF5E44AD649A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B7CA61BD-B873-4A02-BF58-8BE4EC908B32} = {26C553BE-D47A-4AA2-8B41-C8B5CDF96E82}
+		{02E59E3C-BF5C-4BD6-9C24-887B03DE791D} = {26C553BE-D47A-4AA2-8B41-C8B5CDF96E82}
+		{1DAED562-22F1-4FA9-B9D9-C677AC1BE9BD} = {26C553BE-D47A-4AA2-8B41-C8B5CDF96E82}
+		{5DBE7A84-8411-4890-B6F7-DE972382C449} = {26C553BE-D47A-4AA2-8B41-C8B5CDF96E82}
+		{3269FD2C-428A-45FA-B676-67F540E8ADDF} = {5DBE7A84-8411-4890-B6F7-DE972382C449}
+		{82C7D23F-E5D0-435A-8244-B68C79FAE65C} = {5DBE7A84-8411-4890-B6F7-DE972382C449}
+		{2AE3FAD1-3384-47B8-A582-00E76625C1A0} = {26C553BE-D47A-4AA2-8B41-C8B5CDF96E82}
+		{855CA371-8197-414E-96EF-11377127A51E} = {2AE3FAD1-3384-47B8-A582-00E76625C1A0}
+		{59841178-47A2-4861-BF1A-BF5E44AD649A} = {2AE3FAD1-3384-47B8-A582-00E76625C1A0}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BB40D832-E6DB-4ABD-9B3F-2CFAD0D05781}
+	EndGlobalSection
+EndGlobal
