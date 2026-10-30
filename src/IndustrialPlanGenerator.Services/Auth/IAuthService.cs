@@ -13,4 +13,17 @@ public interface IAuthService
     /// excepción con el mismo mensaje, para no revelar cuál fue el motivo (HTTP 401).
     /// </exception>
     Task<LoginResultDto> LoginAsync(LoginRequest request, CancellationToken ct = default);
+
+
+     /// <summary>
+    /// Cambia la contraseña del usuario autenticado.
+    /// </summary>
+    /// <param name="userId">Id del usuario de la sesión (sale del token, nunca del cliente).</param>
+    /// <param name="request">Contraseña actual y contraseña nueva.</param>
+    /// <param name="ct">Token de cancelación.</param>
+    /// <exception cref="Exceptions.AuthenticationFailedException">El usuario del token ya no existe (HTTP 401).</exception>
+    /// <exception cref="Domain.Exceptions.DomainException">
+    /// La contraseña actual es incorrecta, la nueva es demasiado corta o es igual a la actual (HTTP 422).
+    /// </exception>
+    Task ChangePasswordAsync(Guid userId, ChangePasswordRequest request, CancellationToken ct = default);
 }
