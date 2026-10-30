@@ -8,7 +8,10 @@ public class OperatorConfiguration : IEntityTypeConfiguration<Operator>
 {
     public void Configure(EntityTypeBuilder<Operator> builder)
     {
-        builder.ToTable("operators");
+        builder.ToTable("operators", t =>
+        {
+            t.HasCheckConstraint("ck_operator_age", "age >= 18");
+        });
 
         builder.HasKey(o => o.Id);
 
