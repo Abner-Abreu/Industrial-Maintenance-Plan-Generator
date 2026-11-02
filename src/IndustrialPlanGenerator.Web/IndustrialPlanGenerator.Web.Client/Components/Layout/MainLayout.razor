@@ -1,4 +1,6 @@
+@using System.Security.Claims
 @inherits LayoutComponentBase
+@inject NavigationManager Navigation
 
 <div class="app-shell">
     <aside class="sidebar">
@@ -17,6 +19,34 @@
                 </NavLink>
             }
         </nav>
+
+        <div class="sidebar-footer">
+            <div class="user-card">
+                <div class="user-avatar">@_initials</div>
+
+                <div class="user-info">
+                    <span class="user-name">@_userName</span>
+                    <span class="user-role">@_userRole</span>
+                </div>
+
+                <div class="user-menu-wrapper">
+                    <button type="button" class="user-menu-button" aria-label="User menu" @onclick="ToggleMenu">
+                        <DynamicComponent Type="typeof(EllipsisVerticalIcon)" Parameters="_iconParams" />
+                    </button>
+
+                    @if (_menuOpen)
+                    {
+                        <div class="user-menu-backdrop" @onclick="CloseMenu"></div>
+                        <div class="user-menu">
+                            <button type="button" class="user-menu-item" @onclick="CloseSession">
+                                <DynamicComponent Type="typeof(LogOutIcon)" Parameters="_iconParams" />
+                                <span>Close session</span>
+                            </button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
     </aside>
 
     <main class="content">
@@ -25,13 +55,9 @@
 </div>
 
 @code {
-    /// <summary>
-    /// Defines a navigator item
-    /// </summary>
-    /// <param name="Label">Displayed name</param>
-    /// <param name="Href">Page ref</param>
-    /// <param name="Icon">Lucide Icon</param>
-    /// <param name="Match"></param>
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthState { get; set; }
+
     private record NavItem(string Label, string Href, Type Icon, NavLinkMatch Match = NavLinkMatch.Prefix);
 
     private readonly Dictionary<string, object> _iconParams = new()
@@ -43,6 +69,41 @@
     [
         new("Main", "", typeof(HouseIcon), NavLinkMatch.All)
     ];
-    
-    
+
+    private string _userName = "Guest";
+    private string _userRole = "";
+    private string _initials = "?";
+    private bool _menuOpen;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (AuthState is null) return;
+
+        var user = (await AuthState).User;
+        if (user.Identity?.IsAuthenticated != true) return;
+
+        _userName = user.Identity.Name ?? "User";
+        _userRole = user.FindFirst("role")?.Value ?? "";
+        _initials = GetInitials(_userName);
+    }
+
+    private static string GetInitials(string name)
+    {
+        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        return parts.Length switch
+        {
+            0 => "?",
+            1 => parts[0][..1].ToUpperInvariant(),
+            _ => $"{parts[0][0]}{parts[^1][0]}".ToUpperInvariant()
+        };
+    }
+
+    private void ToggleMenu() => _menuOpen = !_menuOpen;
+    private void CloseMenu() => _menuOpen = false;
+
+    private void CloseSession()
+    {
+        _menuOpen = false;
+        Navigation.NavigateTo("/login", forceLoad: true);
+    }
 }
