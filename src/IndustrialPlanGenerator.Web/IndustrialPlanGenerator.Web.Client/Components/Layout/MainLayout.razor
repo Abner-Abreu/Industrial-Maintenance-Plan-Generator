@@ -1,0 +1,48 @@
+@inherits LayoutComponentBase
+
+<div class="app-shell">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <span class="app-name">Rivendel</span>
+        </div>
+
+        <hr class="sidebar-divider" />
+
+        <nav class="sidebar-nav">
+            @foreach (var item in _navItems)
+            {
+                <NavLink class="nav-item" href="@item.Href" Match="@item.Match">
+                    <DynamicComponent Type="item.Icon" Parameters="_iconParams" />
+                    <span class="nav-label">@item.Label</span>
+                </NavLink>
+            }
+        </nav>
+    </aside>
+
+    <main class="content">
+        @Body
+    </main>
+</div>
+
+@code {
+    /// <summary>
+    /// Defines a navigator item
+    /// </summary>
+    /// <param name="Label">Displayed name</param>
+    /// <param name="Href">Page ref</param>
+    /// <param name="Icon">Lucide Icon</param>
+    /// <param name="Match"></param>
+    private record NavItem(string Label, string Href, Type Icon, NavLinkMatch Match = NavLinkMatch.Prefix);
+
+    private readonly Dictionary<string, object> _iconParams = new()
+    {
+        ["ClassName"] = "nav-icon"
+    };
+
+    private readonly List<NavItem> _navItems =
+    [
+        new("Main", "", typeof(HouseIcon), NavLinkMatch.All)
+    ];
+    
+    
+}
