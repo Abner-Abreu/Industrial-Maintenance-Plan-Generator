@@ -1,3 +1,4 @@
+using IndustrialPlanGenerator.Services.Contracts.Auth;
 namespace IndustrialPlanGenerator.Services.Contracts.Auth;
 
 public interface IAuthService

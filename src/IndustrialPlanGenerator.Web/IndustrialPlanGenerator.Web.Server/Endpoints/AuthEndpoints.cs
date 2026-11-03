@@ -28,6 +28,15 @@ public static class AuthEndpoints
             .Produces<SessionUserDto>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status401Unauthorized);
 
+        group.MapPost("/change-password", ChangePassword)
+            .RequireAuthorization()
+            .WithName("ChangePassword")
+            .WithSummary("Cambia la contraseña del usuario autenticado.")
+            .WithDescription("Exige la contraseña actual. La nueva debe tener al menos 8 caracteres y ser distinta de la actual.")
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status422UnprocessableEntity);
+
         return app;
     }
 
