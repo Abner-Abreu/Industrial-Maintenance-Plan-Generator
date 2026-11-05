@@ -22,6 +22,10 @@ public sealed class GlobalExceptionHandler(IProblemDetailsService problemDetails
         var (status, title, detail) = exception switch
         {
             AuthenticationFailedException => (StatusCodes.Status401Unauthorized, "Credenciales inválidas", exception.Message),
+            InvalidRequestException => (StatusCodes.Status400BadRequest, "Solicitud inválida", exception.Message),
+            ForbiddenException => (StatusCodes.Status403Forbidden, "Acceso denegado", exception.Message),
+            EntityNotFoundException => (StatusCodes.Status404NotFound, "Recurso no encontrado", exception.Message),
+            ConflictException => (StatusCodes.Status409Conflict, "Conflicto", exception.Message),
             DomainException => (StatusCodes.Status422UnprocessableEntity, "Regla de negocio violada", exception.Message),
             NotImplementedException => (StatusCodes.Status501NotImplemented, "Funcionalidad aún no implementada", "Este endpoint todavía no está implementado."),
             // Error inesperado: no se filtra el mensaje interno al cliente.
