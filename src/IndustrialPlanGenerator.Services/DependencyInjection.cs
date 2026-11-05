@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using IndustrialPlanGenerator.Services.Contracts.Auth;
 using IndustrialPlanGenerator.Services.Auth;
+using IndustrialPlanGenerator.Services.Users;
 
 namespace IndustrialPlanGenerator.Services;
 
@@ -14,6 +15,7 @@ public static class DependencyInjection
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IUserService, UserService>();
 
 
         return services;
