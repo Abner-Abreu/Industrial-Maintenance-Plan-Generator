@@ -28,6 +28,15 @@ public static class AuthEndpoints
             .Produces<SessionUserDto>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status401Unauthorized);
 
+        group.MapPost("/change-password", ChangePassword)
+            .RequireAuthorization()
+            .WithName("ChangePassword")
+            .WithSummary("Cambia la contraseña del usuario autenticado.")
+            .WithDescription("Exige la contraseña actual. La nueva debe tener al menos 8 caracteres y ser distinta de la actual.")
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status422UnprocessableEntity);
+
         return app;
     }
 
@@ -46,5 +55,22 @@ public static class AuthEndpoints
             return TypedResults.Unauthorized();
 
         return TypedResults.Ok(new SessionUserDto(id, name, role));
+    }
+
+
+
+    // El id sale del token, no del cuerpo: nadie puede cambiar la contraseña de otro usuario.
+    // Contraseña actual incorrecta o nueva inválida: DomainException -> 422 ProblemDetails.
+    private static async Task<Results<NoContent, UnauthorizedHttpResult>> ChangePassword(
+        [FromBody] ChangePasswordRequest request,
+        ClaimsPrincipal principal,
+        IAuthService auth,
+        CancellationToken ct)
+    {
+        if (!Guid.TryParse(principal.FindFirstValue(JwtTokenIssuer.SubjectClaim), out var userId))
+            return TypedResults.Unauthorized();
+
+        await auth.ChangePasswordAsync(userId, request, ct);
+        return TypedResults.NoContent();
     }
 }
