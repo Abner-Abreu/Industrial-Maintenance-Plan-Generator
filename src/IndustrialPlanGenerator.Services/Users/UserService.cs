@@ -3,6 +3,7 @@ using IndustrialPlanGenerator.Domain.Entities;
 using IndustrialPlanGenerator.Domain.Enums;
 using IndustrialPlanGenerator.Domain.Exceptions;
 using IndustrialPlanGenerator.Domain.Persistence;
+using IndustrialPlanGenerator.Services.Access;
 using IndustrialPlanGenerator.Services.Auth;
 using IndustrialPlanGenerator.Services.Contracts.Common;
 using IndustrialPlanGenerator.Services.Contracts.Users;
@@ -14,7 +15,8 @@ namespace IndustrialPlanGenerator.Services.Users;
 public sealed class UserService(
     IUnitOfWork uow,
     IPasswordHasher hasher,
-    ICurrentUser currentUser) : IUserService
+    ICurrentUser currentUser,
+    ILineAccessPolicy lineAccess) : IUserService
 {
     /// <summary>Longitud mínima de la contraseña inicial (igual que en el cambio de contraseña).</summary>
     public const int MinimumPasswordLength = 8;
@@ -273,6 +275,38 @@ public sealed class UserService(
         await uow.SaveChangesAsync(ct);
 
         return await BuildDetailAsync(user, ct);
+    }
+
+    // ======================= USR-8 =======================
+
+    public async Task<IReadOnlyList<LineTechnicianDto>> ListLineTechniciansAsync(
+        Guid lineId, string? permission, CancellationToken ct = default)
+    {
+        TechnicianPermission? wanted = string.IsNullOrWhiteSpace(permission) ? null : ParsePermission(permission);
+
+        // Primero el acceso y después la existencia, para no revelar qué líneas existen a quien no las ve.
+        if (!await lineAccess.CanViewAsync(lineId, ct))
+            throw new ForbiddenException();
+
+        _ = await uow.Line.GetByIdAsync(lineId, ct)
+            ?? throw new EntityNotFoundException(typeof(ProductionLine), lineId);
+
+        var technicians = await uow.Technicians.GetByLineAsync(lineId, ct);
+
+        var candidates = technicians
+            .Select(t => (Technician: t, Link: t.Lines.First(l => l.LineId == lineId)))
+            .Where(x => wanted is null || x.Link.Permission == wanted)
+            .ToList();
+
+        var users = await uow.Users.GetByIdsAsync(candidates.Select(c => c.Technician.Id).ToList(), ct);
+        var names = users.ToDictionary(u => u.Id, u => u.Name);
+
+        return candidates
+            .Where(c => names.ContainsKey(c.Technician.Id))
+            .Select(c => new LineTechnicianDto(
+                c.Technician.Id, names[c.Technician.Id], c.Technician.Specialty, c.Link.Permission.ToString()))
+            .OrderBy(d => d.Name)
+            .ToList();
     }
 
     // ======================= auxiliares =======================

@@ -3,7 +3,7 @@ using IndustrialPlanGenerator.Services.Contracts.Users;
 
 namespace IndustrialPlanGenerator.Services.Users;
 
-/// <summary>Gestión de usuarios (USR-1 a USR-4 y USR-6 a USR-7).</summary>
+/// <summary>Gestión de usuarios (USR-1 a USR-4, USR-6 a USR-8).</summary>
 public interface IUserService
 {
     /// <summary>Lista usuarios con filtros y paginación (USR-1). Solo administrador (se exige en el endpoint).</summary>
@@ -69,4 +69,17 @@ public interface IUserService
     /// <exception cref="Domain.Exceptions.EntityNotFoundException">No existe el usuario (HTTP 404).</exception>
     /// <exception cref="Domain.Exceptions.DomainException">El usuario no es operario o alguna línea no existe (HTTP 422).</exception>
     Task<UserDetailDto> SetOperatorLinesAsync(Guid id, SetOperatorLinesRequest request, CancellationToken ct = default);
+
+    /// <summary>
+    /// Lista los técnicos autorizados en una línea (USR-8), por ejemplo para elegir técnico de apoyo
+    /// en una reinspección. Administrador y jefe de planta, en cualquier línea; técnico y operario, en las suyas.
+    /// </summary>
+    /// <param name="lineId">Id de la línea.</param>
+    /// <param name="permission">Filtra por permiso: <c>Generate</c> o <c>Validate</c> (opcional).</param>
+    /// <param name="ct">Token de cancelación.</param>
+    /// <exception cref="Exceptions.InvalidRequestException">Permiso desconocido (HTTP 400).</exception>
+    /// <exception cref="Exceptions.ForbiddenException">El usuario no tiene acceso a esa línea (HTTP 403).</exception>
+    /// <exception cref="Domain.Exceptions.EntityNotFoundException">No existe la línea (HTTP 404).</exception>
+    Task<IReadOnlyList<LineTechnicianDto>> ListLineTechniciansAsync(
+        Guid lineId, string? permission, CancellationToken ct = default);
 }

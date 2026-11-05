@@ -3,6 +3,7 @@ using IndustrialPlanGenerator.Domain.Enums;
 using IndustrialPlanGenerator.Domain.Exceptions;
 using IndustrialPlanGenerator.Domain.Persistence;
 using IndustrialPlanGenerator.Domain.Repositories;
+using IndustrialPlanGenerator.Services.Access;
 using IndustrialPlanGenerator.Services.Auth;
 using IndustrialPlanGenerator.Services.Contracts.Users;
 using IndustrialPlanGenerator.Services.Exceptions;
@@ -20,6 +21,7 @@ public class UserServiceTests
     private readonly Mock<IShiftRepository> _shifts = new();
     private readonly Mock<IPasswordHasher> _hasher = new();
     private readonly Mock<ICurrentUser> _current = new();
+    private readonly Mock<ILineAccessPolicy> _access = new();
     private readonly UserService _service;
 
     private static readonly Guid AdminId = Guid.CreateVersion7();
@@ -32,7 +34,7 @@ public class UserServiceTests
         _uow.Setup(u => u.Shifts).Returns(_shifts.Object);
         _hasher.Setup(h => h.Hash(It.IsAny<string>())).Returns("hash-generado");
         ComoAdministrador();
-        _service = new UserService(_uow.Object, _hasher.Object, _current.Object);
+        _service = new UserService(_uow.Object, _hasher.Object, _current.Object, _access.Object);
     }
 
     private void ComoAdministrador()
