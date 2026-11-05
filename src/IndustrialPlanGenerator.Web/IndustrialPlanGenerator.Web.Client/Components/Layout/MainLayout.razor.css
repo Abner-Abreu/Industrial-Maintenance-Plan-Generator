@@ -1,0 +1,226 @@
+.app-shell {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--color-primary);
+    color: #e5e7eb;
+}
+
+.sidebar-header {
+    padding: 1.25rem 1rem;
+}
+
+.app-name {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.sidebar-divider {
+    height: 1px;
+    margin: 0;
+    border: none;
+    background-color: var(--color-text-muted);
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.75rem 0.5rem;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+.sidebar-nav ::deep .nav-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 0.75rem;
+    border-radius: 6px;
+    color: inherit;
+    text-decoration: none;
+}
+
+.sidebar-nav ::deep .nav-item:hover {
+    background-color: #374151;
+}
+
+.sidebar-nav ::deep .nav-item.active {
+    background-color: #4b5563;
+    font-weight: 600;
+}
+
+.sidebar-nav ::deep .nav-item.active::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 6px;
+    bottom: 6px;
+    width: 3px;
+    background-color: var(--color-accent);
+    border-radius: 3px 0 0 3px;
+}
+
+.sidebar-nav ::deep .nav-icon {
+    width: 18px;
+    text-align: center;
+    color: var(--color-text-muted);
+    transition: color 0.15s ease;
+}
+
+.sidebar-nav ::deep .nav-item:hover .nav-icon {
+    color: var(--color-accent);
+}
+
+.sidebar-nav ::deep .nav-item.active .nav-icon {
+    color: var(--color-accent);
+}
+
+/* Label */
+.sidebar-nav ::deep .nav-label {
+    color: var(--color-text-muted);
+    transition: color 0.15s ease;
+    font-weight: 500;
+    font-size: 13px;
+    font: var(--font-body);
+}
+
+.sidebar-nav ::deep .nav-item:hover .nav-label {
+    color: var(--color-text-secondary);
+}
+
+.sidebar-nav ::deep .nav-item.active .nav-label {
+    color: var(--color-text-secondary);
+}
+
+.content {
+    flex: 1;
+    min-width: 0;
+    padding: 1.5rem;
+}
+
+/*nav bar footer*/
+.sidebar-footer {
+    border-top: 1px solid var(--color-text-muted);
+    padding: 12px;
+}
+
+.user-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.user-avatar {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #DCEAFF;
+    color: var(--color-text);
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    user-select: none;
+}
+
+.user-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    line-height: 1.25;
+}
+
+.user-name {
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 16.5px;
+    font: var(--font-body);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.user-role {
+    font-size: 10px;
+    color: var(--color-text-muted);
+    font-weight: 500;
+    line-height: 15px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.user-menu-wrapper {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.user-menu-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.user-menu-button:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.user-menu-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 99;
+}
+
+.user-menu {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    right: 0;
+    z-index: 100;
+    min-width: 170px;
+    padding: 4px;
+    border-radius: 8px;
+    background: var(--color-primary, #1f2937);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.user-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 8px 10px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: #ef4444;
+    font-size: 0.875rem;
+    text-align: left;
+    cursor: pointer;
+}
+
+.user-menu-item:hover {
+    background: rgba(239, 68, 68, 0.12);
+}
