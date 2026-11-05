@@ -56,4 +56,21 @@ public static class AuthEndpoints
 
         return TypedResults.Ok(new SessionUserDto(id, name, role));
     }
+
+
+
+    // El id sale del token, no del cuerpo: nadie puede cambiar la contraseña de otro usuario.
+    // Contraseña actual incorrecta o nueva inválida: DomainException -> 422 ProblemDetails.
+    private static async Task<Results<NoContent, UnauthorizedHttpResult>> ChangePassword(
+        [FromBody] ChangePasswordRequest request,
+        ClaimsPrincipal principal,
+        IAuthService auth,
+        CancellationToken ct)
+    {
+        if (!Guid.TryParse(principal.FindFirstValue(JwtTokenIssuer.SubjectClaim), out var userId))
+            return TypedResults.Unauthorized();
+
+        await auth.ChangePasswordAsync(userId, request, ct);
+        return TypedResults.NoContent();
+    }
 }
