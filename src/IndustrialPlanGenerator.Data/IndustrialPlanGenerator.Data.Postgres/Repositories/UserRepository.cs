@@ -72,6 +72,14 @@ public class UserRepository : IUserRepository
         await _context.Administrators.AddAsync(admin, ct);
     }
 
+    public async Task<IReadOnlyList<User>> GetByIdsAsync(IReadOnlyCollection<Guid> ids, CancellationToken ct = default)
+    {
+        return await _context.Users
+            .AsNoTracking()
+            .Where(u => ids.Contains(u.Id))
+            .ToListAsync(ct);
+    }
+
     public async Task<(IReadOnlyList<User> Items, int TotalCount)> SearchAsync(
         UserRole? role, Guid? lineId, string? text, int page, int pageSize, CancellationToken ct = default)
     {
