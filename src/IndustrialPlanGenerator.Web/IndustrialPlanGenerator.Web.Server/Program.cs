@@ -1,6 +1,9 @@
-using IndustrialPlanGenerator.Web.Client.Pages;
+// using IndustrialPlanGenerator.Web.Client.Pages;
 using IndustrialPlanGenerator.Web.Server.Components;
+using IndustrialPlanGenerator.Web.Server.Seeding;
 using IndustrialPlanGenerator.Services;
+using IndustrialPlanGenerator.Data.Postgres;
+using IndustrialPlanGenerator.Data.Mongo;
 using IndustrialPlanGenerator.Web.Server.Errors;
 using IndustrialPlanGenerator.Web.Server.Auth;
 using IndustrialPlanGenerator.Web.Server.Endpoints;
@@ -11,10 +14,17 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveWebAssemblyComponents();
 
+// Register Data Layers
+builder.Services.AddPostgresData(builder.Configuration);
+builder.Services.AddMongoData(builder.Configuration);
+
 builder.Services.AddApplicationServices();
 builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+
+// Register seeder
+builder.Services.AddScoped<IDatabaseSeeder, DatabaseSeeder>();
 
 var app = builder.Build();
 
@@ -23,9 +33,13 @@ var app = builder.Build();
 app.UseExceptionHandler("/Error", createScopeForErrors: true);
 
 
-// Configure the HTTP request pipeline.
+// Seed database in development
 if (app.Environment.IsDevelopment())
 {
+    using var scope = app.Services.CreateScope();
+    var seeder = scope.ServiceProvider.GetRequiredService<IDatabaseSeeder>();
+    await seeder.SeedAsync();
+    
     app.UseWebAssemblyDebugging();
 }
 else

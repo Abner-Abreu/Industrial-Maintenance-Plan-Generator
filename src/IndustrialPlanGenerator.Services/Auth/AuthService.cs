@@ -1,4 +1,4 @@
-using IndustrialPlanGenerator.Domain.Repositories;
+using IndustrialPlanGenerator.Domain.Persistence;
 using IndustrialPlanGenerator.Services.Contracts.Auth;
 using IndustrialPlanGenerator.Domain.Persistence;
 using IndustrialPlanGenerator.Services.Exceptions;
@@ -17,8 +17,6 @@ public sealed class AuthService(
     {
         if (string.IsNullOrWhiteSpace(request.UserName) || string.IsNullOrEmpty(request.Password))
             throw new AuthenticationFailedException();
-
-        
 
         var user = await uow.Users.GetByUserNameAsync(request.UserName.Trim(), ct);
 

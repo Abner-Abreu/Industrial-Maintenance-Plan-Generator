@@ -1,8 +1,8 @@
 namespace IndustrialPlanGenerator.Domain.Enums;
 
-public enum ReinspeccionStatus
+public enum ReinspectionStatus
 {
     Pending,
     InProgress, 
-    Completed    
+    Completed   
 }

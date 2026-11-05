@@ -8,6 +8,6 @@ public class Shift : Entity
 
     public required string Schedule { get; set; }
 
-    //Navigation properties only
-    public ICollection<Operator> Operators {get;set;} = new List<Operator>();
+    // Navigation properties
+    public required ICollection<Operator> Operators { get; set; } = new List<Operator>();
 }

@@ -8,9 +8,9 @@ public class ProductionLine : Entity
 
     public required string ProductiveProcess { get; set; }
 
-    //Navigation properties only
-    public ICollection<EquipmentSystem> EquipmentSystems {get;set;} = new List<EquipmentSystem>();
-    public ICollection<TechnicianLine> TechnicianLines {get;set;} = new List<TechnicianLine>();
-    public ICollection<OperatorLine> Operators {get;set;} = new List<OperatorLine>();
-    public ICollection<MaintenancePlan> MaintenancePlans {get;set;} = new List<MaintenancePlan>();
+    // Navigation properties
+    public required ICollection<EquipmentSystem> EquipmentSystems { get; set; } = new List<EquipmentSystem>();
+    public required ICollection<TechnicianLine> TechnicianLines { get; set; } = new List<TechnicianLine>();
+    public required ICollection<OperatorLine> Operators { get; set; } = new List<OperatorLine>();
+    public required ICollection<MaintenancePlan> MaintenancePlans { get; set; } = new List<MaintenancePlan>();
 }

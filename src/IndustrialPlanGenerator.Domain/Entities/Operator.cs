@@ -8,10 +8,9 @@ public class Operator : Entity
 
     public required Guid ShiftId { get; set; }
 
-    //Navigation properties only
-
-    public Shift Shift {get;set;} = null!;
-    public ICollection<OperatorLine> Lines {get;set;} = new List<OperatorLine>();
-    public ICollection<PlanAssignment> Plans {get;set;} = new List<PlanAssignment>();
-    public ICollection<ReinspectionRequest> ReinspectionRequests {get;set;} = new List<ReinspectionRequest>();
+    // Navigation properties
+    public required Shift Shift { get; set; }
+    public required ICollection<OperatorLine> Lines { get; set; } = new List<OperatorLine>();
+    public required ICollection<PlanAssignment> Plans { get; set; } = new List<PlanAssignment>();
+    public required ICollection<ReinspectionRequest> ReinspectionRequests { get; set; } = new List<ReinspectionRequest>();
 }
