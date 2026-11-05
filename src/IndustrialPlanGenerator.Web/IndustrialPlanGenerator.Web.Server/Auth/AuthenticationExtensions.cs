@@ -35,6 +35,8 @@ public static class AuthenticationExtensions
         services.AddSingleton(TimeProvider.System);
         services.AddSingleton<IPasswordHasher, Pbkdf2PasswordHasher>();
         services.AddSingleton<ITokenIssuer, JwtTokenIssuer>();
+        services.AddHttpContextAccessor();
+        services.AddScoped<ICurrentUser, HttpContextCurrentUser>();
 
         // La validación del token lee las mismas opciones que usa el emisor.
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
