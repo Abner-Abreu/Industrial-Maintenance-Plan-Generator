@@ -2,7 +2,7 @@ using IndustrialPlanGenerator.Services.Contracts.EquipmentStatus;
 
 namespace IndustrialPlanGenerator.Services.EquipmentStatus;
 
-/// <summary>Marcador temporal: los endpoints de estado responden 501 hasta que exista <c>EquipmentStatusService</c>. Se borra entonces, junto con su registro en <c>DependencyInjection</c>.</summary>
+/// <summary>Temporary placeholder: the status endpoints respond 501 until <c>EquipmentStatusService</c> exists. It is then removed, along with its registration in <c>DependencyInjection</c>.</summary>
 internal sealed class EquipmentStatusServiceStub : IEquipmentStatusService
 {
     private const string Pending = "El servicio de estado de equipos aún no está implementado.";

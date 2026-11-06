@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace IndustrialPlanGenerator.Web.Server.Endpoints;
 
-/// <summary>Endpoints del estado operativo de equipos (EST-1 a EST-3).</summary>
+/// <summary>Equipment operational status endpoints (EST-1 to EST-3).</summary>
 public static class EquipmentStatusEndpoints
 {
     public static IEndpointRouteBuilder MapEquipmentStatusEndpoints(this IEndpointRouteBuilder app)
@@ -16,8 +16,8 @@ public static class EquipmentStatusEndpoints
         systems.MapGet("/", Get)
             .RequireAuthorization()
             .WithName("GetEquipmentStatus")
-            .WithSummary("Estado operativo de un equipo (EST-1).")
-            .WithDescription("Requiere acceso a la línea del equipo (incluye operarios). Se lee de la caché.")
+            .WithSummary("Operational state of an equipment (EST-1).")
+            .WithDescription("Requires access to the equipment's line (includes operators). It is read from the cache.")
             .Produces<EquipmentStatusDto>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status403Forbidden)
@@ -26,8 +26,8 @@ public static class EquipmentStatusEndpoints
         systems.MapPut("/", Update)
             .RequireAuthorization(p => p.RequireRole(Policies.Administrator, Policies.Technician))
             .WithName("UpdateEquipmentStatus")
-            .WithSummary("Cambia el estado operativo de un equipo (EST-3).")
-            .WithDescription("Valores: Operational, UnderMaintenance, Stopped, Faulty. El técnico solo en equipos de sus líneas.")
+            .WithSummary("Changes the operational state of an equipment (EST-3).")
+            .WithDescription("Values: Operational, UnderMaintenance, Stopped, Faulty. The technician only on equipment of their lines.")
             .Produces<EquipmentStatusDto>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
@@ -39,8 +39,8 @@ public static class EquipmentStatusEndpoints
             .WithTags("Equipment status")
             .RequireAuthorization()
             .WithName("ListLineEquipmentStatus")
-            .WithSummary("Estado de todos los equipos de una línea (EST-2).")
-            .WithDescription("Requiere acceso a la línea. Es el tablero del operario.")
+            .WithSummary("State of all the equipment of a line (EST-2).")
+            .WithDescription("Requires access to the line. It is the operator's dashboard.")
             .Produces<IReadOnlyList<EquipmentStatusDto>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status403Forbidden)
