@@ -1,7 +1,9 @@
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using IndustrialPlanGenerator.Services.Contracts.Auth;
 using IndustrialPlanGenerator.Services.Access;
 using IndustrialPlanGenerator.Services.Auth;
+using IndustrialPlanGenerator.Services.Lines;
 using IndustrialPlanGenerator.Services.Users;
 
 namespace IndustrialPlanGenerator.Services;
@@ -18,6 +20,7 @@ public static class DependencyInjection
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<ILineAccessPolicy, LineAccessPolicy>();
+        services.TryAddScoped<ILineService, LineServiceStub>();
 
 
         return services;
