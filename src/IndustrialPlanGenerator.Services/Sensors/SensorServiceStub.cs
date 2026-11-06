@@ -2,7 +2,7 @@ using IndustrialPlanGenerator.Services.Contracts.Sensors;
 
 namespace IndustrialPlanGenerator.Services.Sensors;
 
-/// <summary>Marcador temporal: los endpoints de sensores responden 501 hasta que exista <c>SensorService</c>. Se borra entonces, junto con su registro en <c>DependencyInjection</c>.</summary>
+/// <summary>Temporary placeholder: the sensor endpoints respond 501 until <c>SensorService</c> exists. It is removed then, along with its registration in <c>DependencyInjection</c>.</summary>
 internal sealed class SensorServiceStub : ISensorService
 {
     private const string Pending = "El servicio de sensores aún no está implementado.";

@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace IndustrialPlanGenerator.Web.Server.Endpoints;
 
-/// <summary>Endpoints de sensores (SEN-1 y SEN-2).</summary>
+/// <summary>Sensor endpoints (SEN-1 and SEN-2).</summary>
 public static class SensorEndpoints
 {
     public static IEndpointRouteBuilder MapSensorEndpoints(this IEndpointRouteBuilder app)
@@ -18,8 +18,8 @@ public static class SensorEndpoints
         group.MapGet("/", List)
             .RequireAuthorization(p => p.RequireRole(Policies.Administrator, Policies.PlantManager, Policies.Technician))
             .WithName("ListSystemSensors")
-            .WithSummary("Sensores de un sistema (SEN-1).")
-            .WithDescription("Administrador y jefe de planta ven cualquier sistema; el técnico, solo los de sus líneas.")
+            .WithSummary("Sensors of a system (SEN-1).")
+            .WithDescription("Administrator and plant manager see any system; technicians, only those of their lines.")
             .Produces<IReadOnlyList<SensorDto>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status403Forbidden)
@@ -28,8 +28,8 @@ public static class SensorEndpoints
         group.MapPost("/", Create)
             .RequireAuthorization(Policies.Administrator)
             .WithName("CreateSensor")
-            .WithSummary("Da de alta un sensor en un sistema (SEN-2).")
-            .WithDescription("Tipos: temperatura, vibración o presión. Los sensores no se eliminan: las lecturas históricas dependen de ellos.")
+            .WithSummary("Registers a sensor in a system (SEN-2).")
+            .WithDescription("Types: temperature, vibration, or pressure. Sensors are not deleted: historical readings depend on them.")
             .Produces<SensorDto>(StatusCodes.Status201Created)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
