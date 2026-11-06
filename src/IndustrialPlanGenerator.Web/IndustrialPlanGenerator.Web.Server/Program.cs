@@ -60,6 +60,7 @@ app.MapLineEndpoints();
 app.MapSystemEndpoints();
 app.MapSensorEndpoints();
 app.MapCatalogEndpoints();
+app.MapEquipmentStatusEndpoints();
 
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
