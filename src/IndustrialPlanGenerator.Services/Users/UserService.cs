@@ -18,7 +18,7 @@ public sealed class UserService(
     ICurrentUser currentUser,
     ILineAccessPolicy lineAccess) : IUserService
 {
-    /// <summary>Longitud mínima de la contraseña inicial (igual que en el cambio de contraseña).</summary>
+    /// <summary>Minimum length of the initial password (same as in the password change).</summary>
     public const int MinimumPasswordLength = 8;
     public const int MaxNameLength = 200;
     public const int MaxSpecialtyLength = 200;
@@ -334,7 +334,7 @@ public sealed class UserService(
         }
     }
 
-    /// <summary>Carga las líneas pedidas y falla si alguna no existe.</summary>
+    /// <summary>Loads the requested lines and fails if any does not exist.</summary>
     private async Task<Dictionary<Guid, ProductionLine>> LoadExistingLinesAsync(
         IEnumerable<Guid> lineIds, CancellationToken ct)
     {
@@ -361,7 +361,7 @@ public sealed class UserService(
         return name;
     }
 
-    /// <summary>Comprueba que solo vengan los campos que corresponden al rol. Devuelve la especialidad normalizada.</summary>
+    /// <summary>Checks that only the fields corresponding to the role are provided. Returns the normalized specialty.</summary>
     private static string? ValidateRoleData(UserRole role, string? rawSpecialty, int? age, Guid? shiftId)
     {
         var specialty = rawSpecialty?.Trim();
@@ -394,7 +394,7 @@ public sealed class UserService(
         return specialty;
     }
 
-    /// <summary>Reglas de negocio de un operario (edad mínima y turno existente). Devuelve el turno.</summary>
+    /// <summary>Business rules for an operator (minimum age and existing shift). Returns the shift.</summary>
     private async Task<Shift> ValidateOperatorDataAsync(int age, Guid shiftId, CancellationToken ct)
     {
         if (age < BusinessRules.MinimumOperatorAge)

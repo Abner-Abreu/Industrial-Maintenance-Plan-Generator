@@ -12,7 +12,7 @@ using Moq;
 
 namespace IndustrialPlanGenerator.Tests.Users;
 
-/// <summary>Pruebas de USR-4 (editar), USR-6 y USR-7 (líneas) y USR-8 (técnicos de una línea).</summary>
+/// <summary>Tests for USR-4 (edit), USR-6 and USR-7 (lines), and USR-8 (technicians of a line).</summary>
 public class UserServiceManagementTests
 {
     private readonly Mock<IUnitOfWork> _uow = new();

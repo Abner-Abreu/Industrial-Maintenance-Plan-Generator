@@ -1,12 +1,12 @@
 namespace IndustrialPlanGenerator.Services.Contracts.Users;
 
 /// <summary>
-/// Datos editables de un usuario (USR-4). El rol y la contraseña no se cambian aquí.
+/// Editable user data (USR-4). The role and password are not changed here.
 /// </summary>
-/// <param name="Name">Nuevo nombre de usuario (único, máximo 200 caracteres).</param>
-/// <param name="Specialty">Obligatoria solo para técnicos; debe ser nula en el resto.</param>
-/// <param name="Age">Obligatoria solo para operarios (mínimo 18); debe ser nula en el resto.</param>
-/// <param name="ShiftId">Obligatorio solo para operarios; debe ser nulo en el resto.</param>
+/// <param name="Name">New user name (unique, maximum 200 characters).</param>
+/// <param name="Specialty">Required only for technicians; must be null for other roles.</param>
+/// <param name="Age">Required only for operators (minimum 18); must be null for other roles.</param>
+/// <param name="ShiftId">Required only for operators; must be null for other roles.</param>
 public sealed record UpdateUserRequest(
     string Name,
     string? Specialty = null,

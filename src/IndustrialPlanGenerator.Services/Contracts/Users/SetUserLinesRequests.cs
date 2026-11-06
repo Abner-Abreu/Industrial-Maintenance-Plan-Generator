@@ -1,9 +1,9 @@
 namespace IndustrialPlanGenerator.Services.Contracts.Users;
 
-/// <summary>Líneas de un técnico (USR-6). Reemplaza por completo las que tenía; una lista vacía las quita todas.</summary>
-/// <param name="Lines">Pares (línea, permiso). El permiso es <c>Generate</c> o <c>Validate</c>; una línea no puede repetirse.</param>
+/// <summary>Lines of a technician (USR-6). Replaces all existing lines; an empty list removes all of them.</summary>
+/// <param name="Lines">Pairs (line, permission). The permission is <c>Generate</c> or <c>Validate</c>; a line cannot be repeated.</param>
 public sealed record SetTechnicianLinesRequest(IReadOnlyList<UserLineDto> Lines);
 
-/// <summary>Líneas de un operario (USR-7). Reemplaza por completo las que tenía; una lista vacía las quita todas.</summary>
-/// <param name="LineIds">Ids de las líneas; no puede haber repetidos.</param>
+/// <summary>Lines of an operator (USR-7). Replaces all existing lines; an empty list removes all of them.</summary>
+/// <param name="LineIds">Line IDs; duplicates are not allowed.</param>
 public sealed record SetOperatorLinesRequest(IReadOnlyList<Guid> LineIds);

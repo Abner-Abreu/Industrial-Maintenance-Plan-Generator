@@ -1,19 +1,19 @@
 namespace IndustrialPlanGenerator.Services.Contracts.Users;
 
-/// <summary>Línea asignada a un usuario.</summary>
-/// <param name="LineId">Id de la línea de producción.</param>
-/// <param name="Permission">Solo técnicos: <c>Generate</c> o <c>Validate</c>. Nulo para operarios.</param>
+/// <summary>Line assigned to a user.</summary>
+/// <param name="LineId">Production line ID.</param>
+/// <param name="Permission">Technicians only: <c>Generate</c> or <c>Validate</c>. Null for operators.</param>
 public sealed record UserLineDto(Guid LineId, string? Permission);
 
-/// <summary>Detalle de un usuario con los datos propios de su rol.</summary>
-/// <param name="Id">Identificador.</param>
-/// <param name="Name">Nombre de usuario.</param>
-/// <param name="Role">Rol: Administrator, Technician, Operator o PlantManager.</param>
-/// <param name="Specialty">Solo técnicos.</param>
-/// <param name="Age">Solo operarios.</param>
-/// <param name="ShiftId">Solo operarios.</param>
-/// <param name="ShiftName">Solo operarios.</param>
-/// <param name="Lines">Líneas asignadas (técnicos y operarios); vacío para el resto de roles.</param>
+/// <summary>User details including the data specific to their role.</summary>
+/// <param name="Id">Identifier.</param>
+/// <param name="Name">User name.</param>
+/// <param name="Role">Role: Administrator, Technician, Operator, or PlantManager.</param>
+/// <param name="Specialty">Technicians only.</param>
+/// <param name="Age">Operators only.</param>
+/// <param name="ShiftId">Operators only.</param>
+/// <param name="ShiftName">Operators only.</param>
+/// <param name="Lines">Assigned lines (technicians and operators); empty for other roles.</param>
 public sealed record UserDetailDto(
     Guid Id,
     string Name,

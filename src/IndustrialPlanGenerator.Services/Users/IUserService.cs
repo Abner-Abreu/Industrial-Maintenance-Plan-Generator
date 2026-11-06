@@ -3,83 +3,83 @@ using IndustrialPlanGenerator.Services.Contracts.Users;
 
 namespace IndustrialPlanGenerator.Services.Users;
 
-/// <summary>Gestión de usuarios (USR-1 a USR-4, USR-6 a USR-8).</summary>
+/// <summary>User management (USR-1 to USR-4, USR-6 to USR-8).</summary>
 public interface IUserService
 {
-    /// <summary>Lista usuarios con filtros y paginación (USR-1). Solo administrador (se exige en el endpoint).</summary>
-    /// <param name="role">Rol por el que filtrar (opcional).</param>
-    /// <param name="lineId">Solo usuarios con esa línea asignada, como técnico u operario (opcional).</param>
-    /// <param name="text">Texto contenido en el nombre, sin distinguir mayúsculas (opcional).</param>
-    /// <param name="page">Página, desde 1. Un valor menor se corrige a 1.</param>
-    /// <param name="pageSize">Tamaño de página; se limita a 100 y por defecto es 20.</param>
-    /// <param name="ct">Token de cancelación.</param>
-    /// <exception cref="Exceptions.InvalidRequestException">El rol indicado no existe (HTTP 400).</exception>
+    /// <summary>Lists users with filters and pagination (USR-1). Administrator only (enforced at the endpoint).</summary>
+    /// <param name="role">Role to filter by (optional).</param>
+    /// <param name="lineId">Only users with that line assigned, as a technician or operator (optional).</param>
+    /// <param name="text">Text contained in the name, case-insensitive (optional).</param>
+    /// <param name="page">Page, starting at 1. Lower values are corrected to 1.</param>
+    /// <param name="pageSize">Page size; limited to 100 and defaults to 20.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <exception cref="Exceptions.InvalidRequestException">The specified role does not exist (HTTP 400).</exception>
     Task<PagedResult<UserSummaryDto>> ListAsync(
         string? role, Guid? lineId, string? text, int page, int pageSize, CancellationToken ct = default);
 
-    /// <summary>Devuelve el detalle de un usuario (USR-2). El administrador ve cualquiera; el resto, solo el suyo.</summary>
-    /// <param name="id">Id del usuario.</param>
-    /// <param name="ct">Token de cancelación.</param>
-    /// <exception cref="Exceptions.ForbiddenException">Pide el detalle de otro usuario sin ser administrador (HTTP 403).</exception>
-    /// <exception cref="Domain.Exceptions.EntityNotFoundException">No existe el usuario (HTTP 404).</exception>
+    /// <summary>Returns the details of a user (USR-2). Administrators can view any user; other users can view only their own.</summary>
+    /// <param name="id">User ID.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <exception cref="Exceptions.ForbiddenException">Requests another user's details without being an administrator (HTTP 403).</exception>
+    /// <exception cref="Domain.Exceptions.EntityNotFoundException">The user does not exist (HTTP 404).</exception>
     Task<UserDetailDto> GetAsync(Guid id, CancellationToken ct = default);
 
     /// <summary>
-    /// Crea el usuario y su registro de rol en una sola operación (USR-3). Solo administrador (se exige en el endpoint).
+    /// Creates the user and its role record in a single operation (USR-3). Administrator only (enforced at the endpoint).
     /// </summary>
-    /// <param name="request">Datos del usuario.</param>
-    /// <param name="ct">Token de cancelación.</param>
-    /// <exception cref="Exceptions.InvalidRequestException">Datos vacíos o inválidos, rol desconocido, o campos que no corresponden al rol (HTTP 400).</exception>
-    /// <exception cref="Exceptions.ConflictException">Ya existe un usuario con ese nombre (HTTP 409).</exception>
-    /// <exception cref="Domain.Exceptions.DomainException">Operario menor de edad o turno inexistente (HTTP 422).</exception>
+    /// <param name="request">User data.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <exception cref="Exceptions.InvalidRequestException">Empty or invalid data, unknown role, or fields that do not correspond to the role (HTTP 400).</exception>
+    /// <exception cref="Exceptions.ConflictException">A user with that name already exists (HTTP 409).</exception>
+    /// <exception cref="Domain.Exceptions.DomainException">Operator under age or nonexistent shift (HTTP 422).</exception>
     Task<UserDetailDto> CreateAsync(CreateUserRequest request, CancellationToken ct = default);
 
     /// <summary>
-    /// Edita el nombre y los datos propios del rol (USR-4). No cambia el rol ni la contraseña.
-    /// Solo administrador (se exige en el endpoint).
+    /// Edits the name and the data specific to the role (USR-4). Does not change the role or password.
+    /// Administrator only (enforced at the endpoint).
     /// </summary>
-    /// <param name="id">Id del usuario.</param>
-    /// <param name="request">Nuevos datos.</param>
-    /// <param name="ct">Token de cancelación.</param>
-    /// <exception cref="Exceptions.InvalidRequestException">Datos inválidos o campos que no corresponden al rol (HTTP 400).</exception>
-    /// <exception cref="Domain.Exceptions.EntityNotFoundException">No existe el usuario (HTTP 404).</exception>
-    /// <exception cref="Exceptions.ConflictException">Otro usuario ya tiene ese nombre (HTTP 409).</exception>
-    /// <exception cref="Domain.Exceptions.DomainException">Operario menor de edad o turno inexistente (HTTP 422).</exception>
+    /// <param name="id">User ID.</param>
+    /// <param name="request">New data.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <exception cref="Exceptions.InvalidRequestException">Invalid data or fields that do not correspond to the role (HTTP 400).</exception>
+    /// <exception cref="Domain.Exceptions.EntityNotFoundException">The user does not exist (HTTP 404).</exception>
+    /// <exception cref="Exceptions.ConflictException">Another user already has that name (HTTP 409).</exception>
+    /// <exception cref="Domain.Exceptions.DomainException">Operator under age or nonexistent shift (HTTP 422).</exception>
     Task<UserDetailDto> UpdateAsync(Guid id, UpdateUserRequest request, CancellationToken ct = default);
 
     /// <summary>
-    /// Reemplaza las líneas de un técnico con su permiso (USR-6). Cambiar las líneas no altera los planes
-    /// ya generados. Solo administrador (se exige en el endpoint).
+    /// Replaces a technician's lines with their permission (USR-6). Changing the lines does not alter already
+    /// generated plans. Administrator only (enforced at the endpoint).
     /// </summary>
-    /// <param name="id">Id del técnico.</param>
-    /// <param name="request">Nuevas líneas con su permiso.</param>
-    /// <param name="ct">Token de cancelación.</param>
-    /// <exception cref="Exceptions.InvalidRequestException">Lista nula, líneas repetidas o permiso desconocido (HTTP 400).</exception>
-    /// <exception cref="Domain.Exceptions.EntityNotFoundException">No existe el usuario (HTTP 404).</exception>
-    /// <exception cref="Domain.Exceptions.DomainException">El usuario no es técnico o alguna línea no existe (HTTP 422).</exception>
+    /// <param name="id">Technician ID.</param>
+    /// <param name="request">New lines with their permission.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <exception cref="Exceptions.InvalidRequestException">Null list, repeated lines, or unknown permission (HTTP 400).</exception>
+    /// <exception cref="Domain.Exceptions.EntityNotFoundException">The user does not exist (HTTP 404).</exception>
+    /// <exception cref="Domain.Exceptions.DomainException">The user is not a technician or some line does not exist (HTTP 422).</exception>
     Task<UserDetailDto> SetTechnicianLinesAsync(Guid id, SetTechnicianLinesRequest request, CancellationToken ct = default);
 
     /// <summary>
-    /// Reemplaza las líneas de un operario (USR-7). Solo administrador (se exige en el endpoint).
+    /// Replaces an operator's lines (USR-7). Administrator only (enforced at the endpoint).
     /// </summary>
-    /// <param name="id">Id del operario.</param>
-    /// <param name="request">Nuevas líneas.</param>
-    /// <param name="ct">Token de cancelación.</param>
-    /// <exception cref="Exceptions.InvalidRequestException">Lista nula o líneas repetidas (HTTP 400).</exception>
-    /// <exception cref="Domain.Exceptions.EntityNotFoundException">No existe el usuario (HTTP 404).</exception>
-    /// <exception cref="Domain.Exceptions.DomainException">El usuario no es operario o alguna línea no existe (HTTP 422).</exception>
+    /// <param name="id">Operator ID.</param>
+    /// <param name="request">New lines.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <exception cref="Exceptions.InvalidRequestException">Null list or repeated lines (HTTP 400).</exception>
+    /// <exception cref="Domain.Exceptions.EntityNotFoundException">The user does not exist (HTTP 404).</exception>
+    /// <exception cref="Domain.Exceptions.DomainException">The user is not an operator or some line does not exist (HTTP 422).</exception>
     Task<UserDetailDto> SetOperatorLinesAsync(Guid id, SetOperatorLinesRequest request, CancellationToken ct = default);
 
     /// <summary>
-    /// Lista los técnicos autorizados en una línea (USR-8), por ejemplo para elegir técnico de apoyo
-    /// en una reinspección. Administrador y jefe de planta, en cualquier línea; técnico y operario, en las suyas.
+    /// Lists the technicians authorized on a line (USR-8), for example to choose a support technician
+    /// for a reinspection. Administrator and plant manager, on any line; technician and operator, on their own lines.
     /// </summary>
-    /// <param name="lineId">Id de la línea.</param>
-    /// <param name="permission">Filtra por permiso: <c>Generate</c> o <c>Validate</c> (opcional).</param>
-    /// <param name="ct">Token de cancelación.</param>
-    /// <exception cref="Exceptions.InvalidRequestException">Permiso desconocido (HTTP 400).</exception>
-    /// <exception cref="Exceptions.ForbiddenException">El usuario no tiene acceso a esa línea (HTTP 403).</exception>
-    /// <exception cref="Domain.Exceptions.EntityNotFoundException">No existe la línea (HTTP 404).</exception>
+    /// <param name="lineId">Line ID.</param>
+    /// <param name="permission">Filters by permission: <c>Generate</c> or <c>Validate</c> (optional).</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <exception cref="Exceptions.InvalidRequestException">Unknown permission (HTTP 400).</exception>
+    /// <exception cref="Exceptions.ForbiddenException">The user does not have access to that line (HTTP 403).</exception>
+    /// <exception cref="Domain.Exceptions.EntityNotFoundException">The line does not exist (HTTP 404).</exception>
     Task<IReadOnlyList<LineTechnicianDto>> ListLineTechniciansAsync(
         Guid lineId, string? permission, CancellationToken ct = default);
 }

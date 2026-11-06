@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace IndustrialPlanGenerator.Web.Server.Endpoints;
 
-/// <summary>Endpoints de usuarios (USR-1 a USR-4 y USR-6 a USR-8).</summary>
+/// <summary>User endpoints (USR-1 to USR-4 and USR-6 to USR-8).</summary>
 public static class UserEndpoints
 {
     public static IEndpointRouteBuilder MapUserEndpoints(this IEndpointRouteBuilder app)
@@ -17,10 +17,10 @@ public static class UserEndpoints
         group.MapGet("/", List)
             .RequireAuthorization(Policies.Administrator)
             .WithName("ListUsers")
-            .WithSummary("Lista usuarios con filtros y paginación (USR-1).")
-            .WithDescription("Filtros opcionales: role (Administrator, Technician, Operator, PlantManager), " +
-                             "lineId (técnicos u operarios con esa línea) y text (parte del nombre). " +
-                             "page empieza en 1; pageSize por defecto 20 y máximo 100.")
+            .WithSummary("Lists users with filters and pagination (USR-1).")
+            .WithDescription("Optional filters: role (Administrator, Technician, Operator, PlantManager), " +
+                             "lineId (technicians or operators with that line), and text (part of the name). " +
+                             "page starts at 1; pageSize defaults to 20 and has a maximum of 100.")
             .Produces<PagedResult<UserSummaryDto>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
@@ -29,8 +29,8 @@ public static class UserEndpoints
         group.MapGet("/{id:guid}", Get)
             .RequireAuthorization()
             .WithName("GetUser")
-            .WithSummary("Detalle de un usuario (USR-2).")
-            .WithDescription("El administrador puede ver cualquier usuario; el resto de roles, solo el suyo.")
+            .WithSummary("User details (USR-2).")
+            .WithDescription("Administrators can view any user; other roles can view only their own.")
             .Produces<UserDetailDto>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status403Forbidden)
@@ -39,9 +39,9 @@ public static class UserEndpoints
         group.MapPost("/", Create)
             .RequireAuthorization(Policies.Administrator)
             .WithName("CreateUser")
-            .WithSummary("Crea un usuario y su registro de rol (USR-3).")
-            .WithDescription("Especialidad solo para técnicos; edad (mínimo 18) y turno solo para operarios. " +
-                             "El nombre de usuario debe ser único.")
+            .WithSummary("Creates a user and its role record (USR-3).")
+            .WithDescription("Specialty only for technicians; age (minimum 18) and shift only for operators. " +
+                             "The user name must be unique.")
             .Produces<UserDetailDto>(StatusCodes.Status201Created)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
@@ -52,9 +52,9 @@ public static class UserEndpoints
         group.MapPut("/{id:guid}", Update)
             .RequireAuthorization(Policies.Administrator)
             .WithName("UpdateUser")
-            .WithSummary("Edita el nombre y los datos propios del rol (USR-4).")
-            .WithDescription("No cambia el rol ni la contraseña. Los campos deben corresponder al rol del usuario. " +
-                             "El token ya emitido conserva el nombre anterior hasta que expire.")
+            .WithSummary("Edits the name and the data specific to the role (USR-4).")
+            .WithDescription("Does not change the role or password. The fields must correspond to the user's role. " +
+                             "The already issued token keeps the previous name until it expires.")
             .Produces<UserDetailDto>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
@@ -66,9 +66,9 @@ public static class UserEndpoints
         group.MapPut("/{id:guid}/technician-lines", SetTechnicianLines)
             .RequireAuthorization(Policies.Administrator)
             .WithName("SetTechnicianLines")
-            .WithSummary("Reemplaza las líneas de un técnico con su permiso (USR-6).")
-            .WithDescription("Permiso: Generate o Validate. Una línea solo puede aparecer una vez (un permiso por línea). " +
-                             "Una lista vacía quita todas. No altera los planes ya generados.")
+            .WithSummary("Replaces a technician's lines with their permission (USR-6).")
+            .WithDescription("Permission: Generate or Validate. A line can appear only once (one permission per line). " +
+                             "An empty list removes all of them. Does not alter already generated plans.")
             .Produces<UserDetailDto>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
@@ -79,8 +79,8 @@ public static class UserEndpoints
         group.MapPut("/{id:guid}/operator-lines", SetOperatorLines)
             .RequireAuthorization(Policies.Administrator)
             .WithName("SetOperatorLines")
-            .WithSummary("Reemplaza las líneas de un operario (USR-7).")
-            .WithDescription("Una lista vacía quita todas.")
+            .WithSummary("Replaces an operator's lines (USR-7).")
+            .WithDescription("An empty list removes all of them.")
             .Produces<UserDetailDto>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
@@ -93,9 +93,9 @@ public static class UserEndpoints
             .WithTags("Users")
             .RequireAuthorization()
             .WithName("ListLineTechnicians")
-            .WithSummary("Técnicos autorizados en una línea (USR-8).")
-            .WithDescription("Filtro opcional permission: Generate o Validate. Administrador y jefe de planta ven cualquier línea; " +
-                             "técnicos y operarios, solo las suyas. Sirve para elegir técnico de apoyo en una reinspección.")
+            .WithSummary("Technicians authorized on a line (USR-8).")
+            .WithDescription("Optional permission filter: Generate or Validate. Administrator and plant manager can view any line; " +
+                             "technicians and operators, only their own. Used to choose a support technician for a reinspection.")
             .Produces<IReadOnlyList<LineTechnicianDto>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status401Unauthorized)

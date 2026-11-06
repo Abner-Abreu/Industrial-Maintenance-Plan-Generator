@@ -1,23 +1,23 @@
 namespace IndustrialPlanGenerator.Services.Access;
 
 /// <summary>
-/// Única pieza que decide si el usuario de la sesión puede ver una línea, generar planes en ella
-/// o validarlos. Los demás servicios la consultan en lugar de repetir estas reglas.
+/// The single component that decides whether the session user can view a line, generate plans on it,
+/// or validate them. Other services consult it instead of repeating these rules.
 /// </summary>
 public interface ILineAccessPolicy
 {
     /// <summary>
-    /// ¿Puede ver la línea? Administrador y jefe de planta, todas; técnico y operario, solo
-    /// aquellas a las que están asignados.
+    /// Can the user view the line? Administrator and plant manager, all lines; technician and operator,
+    /// only those to which they are assigned.
     /// </summary>
     Task<bool> CanViewAsync(Guid lineId, CancellationToken ct = default);
 
-    /// <summary>¿Puede generar planes en la línea? Solo un técnico con permiso <c>Generate</c> en ella.</summary>
+    /// <summary>Can the user generate plans on the line? Only a technician with the <c>Generate</c> permission on it.</summary>
     Task<bool> CanGenerateAsync(Guid lineId, CancellationToken ct = default);
 
     /// <summary>
-    /// ¿Puede validar planes en la línea? El jefe de planta (todas las líneas) o un técnico con
-    /// permiso <c>Validate</c> en ella.
+    /// Can the user validate plans on the line? The plant manager (all lines) or a technician with the
+    /// <c>Validate</c> permission on it.
     /// </summary>
     Task<bool> CanValidateAsync(Guid lineId, CancellationToken ct = default);
 }

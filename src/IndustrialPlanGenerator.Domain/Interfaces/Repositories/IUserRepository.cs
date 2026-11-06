@@ -16,11 +16,11 @@ public interface IUserRepository
     Task AddAsync(User user, CancellationToken ct = default);
 
     /// <summary>
-    /// Busca usuarios con filtros opcionales y paginación, ordenados por nombre.
-    /// <paramref name="lineId"/> incluye a técnicos y operarios con esa línea asignada;
-    /// <paramref name="text"/> busca dentro del nombre sin distinguir mayúsculas.
+    /// Searches users with optional filters and pagination, ordered by name.
+    /// <paramref name="lineId"/> includes technicians and operators with that line assigned;
+    /// <paramref name="text"/> searches within the name case-insensitively.
     /// </summary>
-    /// <returns>La página de usuarios y el total de usuarios que cumplen el filtro.</returns>
+    /// <returns>The page of users and the total number of users matching the filter.</returns>
     Task<(IReadOnlyList<User> Items, int TotalCount)> SearchAsync(
         UserRole? role, Guid? lineId, string? text, int page, int pageSize, CancellationToken ct = default);
 

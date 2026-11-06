@@ -3,14 +3,14 @@ using IndustrialPlanGenerator.Domain.Enums;
 namespace IndustrialPlanGenerator.Services.Auth;
 
 /// <summary>
-/// Usuario de la sesión actual. Los servicios lo usan en lugar de <c>HttpContext</c>, para que no
-/// dependan de la capa web y se puedan probar. La implementación está en Web.Server.
+/// Current session user. Services use it instead of <c>HttpContext</c>, so they do not depend on the
+/// web layer and can be tested. The implementation is in Web.Server.
 /// </summary>
 public interface ICurrentUser
 {
-    /// <summary>Id del usuario autenticado.</summary>
+    /// <summary>Authenticated user ID.</summary>
     Guid Id { get; }
 
-    /// <summary>Rol del usuario autenticado.</summary>
+    /// <summary>Authenticated user role.</summary>
     UserRole Role { get; }
 }
