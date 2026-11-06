@@ -4,6 +4,7 @@ using IndustrialPlanGenerator.Services.Contracts.Auth;
 using IndustrialPlanGenerator.Services.Access;
 using IndustrialPlanGenerator.Services.Auth;
 using IndustrialPlanGenerator.Services.Lines;
+using IndustrialPlanGenerator.Services.Systems;
 using IndustrialPlanGenerator.Services.Users;
 
 namespace IndustrialPlanGenerator.Services;
@@ -21,6 +22,7 @@ public static class DependencyInjection
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<ILineAccessPolicy, LineAccessPolicy>();
         services.TryAddScoped<ILineService, LineServiceStub>();
+        services.TryAddScoped<IEquipmentSystemService, EquipmentSystemServiceStub>();
 
 
         return services;
