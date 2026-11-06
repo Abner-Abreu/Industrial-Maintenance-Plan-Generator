@@ -3,8 +3,8 @@ using IndustrialPlanGenerator.Services.Contracts.Lines;
 namespace IndustrialPlanGenerator.Services.Lines;
 
 /// <summary>
-/// Marcador temporal para que los endpoints de líneas respondan 501 hasta que exista la implementación real.
-/// Se borra, junto con su línea en <c>DependencyInjection</c>, cuando se añada <c>LineService</c>.
+/// Temporary placeholder so the line endpoints respond 501 until the real implementation exists.
+/// It is removed, along with its line in <c>DependencyInjection</c>, when <c>LineService</c> is added.
 /// </summary>
 internal sealed class LineServiceStub : ILineService
 {

@@ -1,11 +1,11 @@
 namespace IndustrialPlanGenerator.Services.Contracts.Lines;
 
-/// <summary>Datos para crear una línea (LIN-3).</summary>
-/// <param name="Name">Nombre de la línea (obligatorio).</param>
-/// <param name="ProductiveProcess">Proceso productivo (obligatorio).</param>
+/// <summary>Data for creating a line (LIN-3).</summary>
+/// <param name="Name">Line name (required).</param>
+/// <param name="ProductiveProcess">Productive process (required).</param>
 public sealed record CreateLineRequest(string Name, string ProductiveProcess);
 
-/// <summary>Datos para editar una línea (LIN-4). Reemplaza ambos campos.</summary>
-/// <param name="Name">Nuevo nombre (obligatorio).</param>
-/// <param name="ProductiveProcess">Nuevo proceso productivo (obligatorio).</param>
+/// <summary>Data for editing a line (LIN-4). Replaces both fields.</summary>
+/// <param name="Name">New name (required).</param>
+/// <param name="ProductiveProcess">New productive process (required).</param>
 public sealed record UpdateLineRequest(string Name, string ProductiveProcess);

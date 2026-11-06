@@ -1,20 +1,20 @@
 namespace IndustrialPlanGenerator.Services.Contracts.Lines;
 
-/// <summary>Línea de producción en un listado (LIN-1).</summary>
-/// <param name="Id">Id de la línea.</param>
-/// <param name="Name">Nombre.</param>
-/// <param name="ProductiveProcess">Proceso productivo que realiza.</param>
-/// <param name="SystemCount">Cantidad de sistemas (equipos) que tiene.</param>
+/// <summary>Production line in a listing (LIN-1).</summary>
+/// <param name="Id">Line ID.</param>
+/// <param name="Name">Name.</param>
+/// <param name="ProductiveProcess">Productive process performed.</param>
+/// <param name="SystemCount">Number of systems (equipment) it has.</param>
 public sealed record LineSummaryDto(Guid Id, string Name, string ProductiveProcess, int SystemCount);
 
-/// <summary>Sistema o equipo de una línea. Lo reutilizan los endpoints de sistemas (SIS-*).</summary>
-/// <param name="Id">Id del sistema.</param>
-/// <param name="Name">Nombre.</param>
-/// <param name="Description">Descripción.</param>
-/// <param name="OperativeState">Estado operativo actual (lo gestiona el servicio de telemetría, no se edita aquí).</param>
+/// <summary>System or equipment of a line. It is reused by the system endpoints (SIS-*).</summary>
+/// <param name="Id">System ID.</param>
+/// <param name="Name">Name.</param>
+/// <param name="Description">Description.</param>
+/// <param name="OperativeState">Current operative state (managed by the telemetry service, not edited here).</param>
 public sealed record EquipmentSystemDto(Guid Id, string Name, string Description, string OperativeState);
 
-/// <summary>Detalle de una línea con sus sistemas (LIN-2, LIN-3, LIN-4).</summary>
+/// <summary>Line details including its systems (LIN-2, LIN-3, LIN-4).</summary>
 public sealed record LineDetailDto(
     Guid Id,
     string Name,

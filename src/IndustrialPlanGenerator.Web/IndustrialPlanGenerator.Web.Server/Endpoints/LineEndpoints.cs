@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace IndustrialPlanGenerator.Web.Server.Endpoints;
 
-/// <summary>Endpoints de líneas de producción (LIN-1 a LIN-5).</summary>
+/// <summary>Production line endpoints (LIN-1 to LIN-5).</summary>
 public static class LineEndpoints
 {
     public static IEndpointRouteBuilder MapLineEndpoints(this IEndpointRouteBuilder app)
@@ -16,16 +16,16 @@ public static class LineEndpoints
         group.MapGet("/", List)
             .RequireAuthorization()
             .WithName("ListLines")
-            .WithSummary("Lista las líneas visibles para el usuario (LIN-1).")
-            .WithDescription("Administrador y jefe de planta ven todas; técnicos y operarios, solo las suyas.")
+            .WithSummary("Lists the lines visible to the user (LIN-1).")
+            .WithDescription("Administrator and plant manager see all lines; technicians and operators, only their own.")
             .Produces<IReadOnlyList<LineSummaryDto>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status401Unauthorized);
 
         group.MapGet("/{id:guid}", Get)
             .RequireAuthorization()
             .WithName("GetLine")
-            .WithSummary("Detalle de una línea con sus sistemas (LIN-2).")
-            .WithDescription("Requiere acceso a la línea.")
+            .WithSummary("Line details including its systems (LIN-2).")
+            .WithDescription("Requires access to the line.")
             .Produces<LineDetailDto>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status403Forbidden)
@@ -34,7 +34,7 @@ public static class LineEndpoints
         group.MapPost("/", Create)
             .RequireAuthorization(Policies.Administrator)
             .WithName("CreateLine")
-            .WithSummary("Crea una línea de producción (LIN-3).")
+            .WithSummary("Creates a production line (LIN-3).")
             .Produces<LineDetailDto>(StatusCodes.Status201Created)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
@@ -43,7 +43,7 @@ public static class LineEndpoints
         group.MapPut("/{id:guid}", Update)
             .RequireAuthorization(Policies.Administrator)
             .WithName("UpdateLine")
-            .WithSummary("Edita nombre y proceso productivo de una línea (LIN-4).")
+            .WithSummary("Edits the name and productive process of a line (LIN-4).")
             .Produces<LineDetailDto>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
@@ -53,8 +53,8 @@ public static class LineEndpoints
         group.MapDelete("/{id:guid}", Delete)
             .RequireAuthorization(Policies.Administrator)
             .WithName("DeleteLine")
-            .WithSummary("Elimina una línea (LIN-5).")
-            .WithDescription("409 si la línea tiene sistemas, planes o asignaciones.")
+            .WithSummary("Deletes a line (LIN-5).")
+            .WithDescription("409 if the line has systems, plans, or assignments.")
             .Produces(StatusCodes.Status204NoContent)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status403Forbidden)
