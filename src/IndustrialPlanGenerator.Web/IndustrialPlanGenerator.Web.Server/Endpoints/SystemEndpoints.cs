@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace IndustrialPlanGenerator.Web.Server.Endpoints;
 
-/// <summary>Endpoints de sistemas o equipos (SIS-1 a SIS-4).</summary>
+/// <summary>System or equipment endpoints (SIS-1 to SIS-4).</summary>
 public static class SystemEndpoints
 {
     public static IEndpointRouteBuilder MapSystemEndpoints(this IEndpointRouteBuilder app)
@@ -17,8 +17,8 @@ public static class SystemEndpoints
             .WithTags("Systems")
             .RequireAuthorization()
             .WithName("ListLineSystems")
-            .WithSummary("Sistemas de una línea (SIS-1).")
-            .WithDescription("Requiere acceso a la línea.")
+            .WithSummary("Systems of a line (SIS-1).")
+            .WithDescription("Requires access to the line.")
             .Produces<IReadOnlyList<EquipmentSystemDto>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status403Forbidden)
@@ -29,8 +29,8 @@ public static class SystemEndpoints
         group.MapPost("/", Create)
             .RequireAuthorization(Policies.Administrator)
             .WithName("CreateSystem")
-            .WithSummary("Crea un sistema en una línea (SIS-2).")
-            .WithDescription("El estado operativo inicial lo asigna el servidor.")
+            .WithSummary("Creates a system in a line (SIS-2).")
+            .WithDescription("The initial operative state is assigned by the server.")
             .Produces<EquipmentSystemDto>(StatusCodes.Status201Created)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
@@ -40,8 +40,8 @@ public static class SystemEndpoints
         group.MapPut("/{id:guid}", Update)
             .RequireAuthorization(Policies.Administrator)
             .WithName("UpdateSystem")
-            .WithSummary("Edita nombre y descripción de un sistema (SIS-3).")
-            .WithDescription("No cambia el estado operativo ni la línea.")
+            .WithSummary("Edits the name and description of a system (SIS-3).")
+            .WithDescription("Does not change the operative state or the line.")
             .Produces<EquipmentSystemDto>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
@@ -51,8 +51,8 @@ public static class SystemEndpoints
         group.MapDelete("/{id:guid}", Delete)
             .RequireAuthorization(Policies.Administrator)
             .WithName("DeleteSystem")
-            .WithSummary("Elimina un sistema (SIS-4).")
-            .WithDescription("409 si tiene tareas o sensores.")
+            .WithSummary("Deletes a system (SIS-4).")
+            .WithDescription("409 if it has tasks or sensors.")
             .Produces(StatusCodes.Status204NoContent)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status403Forbidden)

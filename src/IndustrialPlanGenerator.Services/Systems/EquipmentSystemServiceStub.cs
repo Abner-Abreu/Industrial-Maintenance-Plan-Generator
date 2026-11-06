@@ -4,8 +4,8 @@ using IndustrialPlanGenerator.Services.Contracts.Systems;
 namespace IndustrialPlanGenerator.Services.Systems;
 
 /// <summary>
-/// Marcador temporal: los endpoints de sistemas responden 501 hasta que exista la implementación real.
-/// Se borra, junto con su línea en <c>DependencyInjection</c>, cuando se añada el servicio real.
+/// Temporary placeholder: the system endpoints respond 501 until the real implementation exists.
+/// It is removed, along with its line in <c>DependencyInjection</c>, when the real service is added.
 /// </summary>
 internal sealed class EquipmentSystemServiceStub : IEquipmentSystemService
 {
