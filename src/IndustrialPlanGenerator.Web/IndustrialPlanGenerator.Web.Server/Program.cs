@@ -58,6 +58,7 @@ app.MapAuthEndpoints();
 app.MapUserEndpoints();
 app.MapLineEndpoints();
 app.MapSystemEndpoints();
+app.MapSensorEndpoints();
 
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
