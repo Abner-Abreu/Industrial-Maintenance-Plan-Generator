@@ -1,17 +1,17 @@
 namespace IndustrialPlanGenerator.Services.Contracts.Catalogs;
 
-/// <summary>Turno de trabajo (CAT-1 a CAT-3).</summary>
-/// <param name="Id">Id del turno.</param>
-/// <param name="Name">Nombre (único).</param>
-/// <param name="Schedule">Horario (único), por ejemplo "06:00-14:00".</param>
+/// <summary>Work shift (CAT-1 to CAT-3).</summary>
+/// <param name="Id">Shift ID.</param>
+/// <param name="Name">Name (unique).</param>
+/// <param name="Schedule">Schedule (unique), for example "06:00-14:00".</param>
 public sealed record ShiftDto(Guid Id, string Name, string Schedule);
 
-/// <summary>Datos para crear un turno (CAT-2).</summary>
-/// <param name="Name">Nombre (obligatorio y único).</param>
-/// <param name="Schedule">Horario (obligatorio y único).</param>
+/// <summary>Data for creating a shift (CAT-2).</summary>
+/// <param name="Name">Name (required and unique).</param>
+/// <param name="Schedule">Schedule (required and unique).</param>
 public sealed record CreateShiftRequest(string Name, string Schedule);
 
-/// <summary>Datos para editar un turno (CAT-3). Reemplaza ambos campos.</summary>
-/// <param name="Name">Nuevo nombre (obligatorio y único).</param>
-/// <param name="Schedule">Nuevo horario (obligatorio y único).</param>
+/// <summary>Data for editing a shift (CAT-3). Replaces both fields.</summary>
+/// <param name="Name">New name (required and unique).</param>
+/// <param name="Schedule">New schedule (required and unique).</param>
 public sealed record UpdateShiftRequest(string Name, string Schedule);

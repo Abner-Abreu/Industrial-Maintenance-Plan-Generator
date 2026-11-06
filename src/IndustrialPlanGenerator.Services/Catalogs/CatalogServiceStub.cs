@@ -3,9 +3,9 @@ using IndustrialPlanGenerator.Services.Contracts.Catalogs;
 namespace IndustrialPlanGenerator.Services.Catalogs;
 
 /// <summary>
-/// Marcador temporal: los endpoints de turnos responden 501 hasta que exista <c>CatalogService</c>.
-/// Los tipos de mantenimiento y las criticidades ya funcionan porque son valores fijos del dominio.
-/// Se borra, junto con su registro en <c>DependencyInjection</c>, cuando se añada el servicio real.
+/// Temporary placeholder: the shift endpoints respond 501 until <c>CatalogService</c> exists.
+/// Maintenance types and criticalities already work because they are fixed domain values.
+/// It is removed, along with its registration in <c>DependencyInjection</c>, when the real service is added.
 /// </summary>
 internal sealed class CatalogServiceStub : ICatalogService
 {
