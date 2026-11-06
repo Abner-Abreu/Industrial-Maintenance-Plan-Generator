@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using IndustrialPlanGenerator.Services.Contracts.Auth;
 using IndustrialPlanGenerator.Services.Access;
 using IndustrialPlanGenerator.Services.Auth;
+using IndustrialPlanGenerator.Services.Catalogs;
 using IndustrialPlanGenerator.Services.Lines;
 using IndustrialPlanGenerator.Services.Sensors;
 using IndustrialPlanGenerator.Services.Systems;
@@ -25,6 +26,7 @@ public static class DependencyInjection
         services.TryAddScoped<ILineService, LineServiceStub>();
         services.TryAddScoped<IEquipmentSystemService, EquipmentSystemServiceStub>();
         services.TryAddScoped<ISensorService, SensorServiceStub>();
+        services.TryAddScoped<ICatalogService, CatalogServiceStub>();
 
 
         return services;
