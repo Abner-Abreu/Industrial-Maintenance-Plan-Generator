@@ -1,4 +1,4 @@
 namespace IndustrialPlanGenerator.Services.Exceptions;
 
-/// <summary>El usuario autenticado no tiene permiso para esta operación. HTTP 403.</summary>
+/// <summary>The authenticated user does not have permission for this operation. HTTP 403.</summary>
 public sealed class ForbiddenException() : Exception("No tiene permiso para realizar esta operación.");

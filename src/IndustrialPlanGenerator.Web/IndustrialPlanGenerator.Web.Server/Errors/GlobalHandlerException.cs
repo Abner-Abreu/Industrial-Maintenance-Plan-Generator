@@ -7,9 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 namespace IndustrialPlanGenerator.Web.Server.Errors;
 
 /// <summary>
-/// Convierte las excepciones lanzadas por los servicios en respuestas <c>ProblemDetails</c> con el
-/// código HTTP correcto. Solo actúa sobre rutas <c>/api</c>; las páginas Blazor siguen con <c>/Error</c>.
-/// Para añadir un nuevo tipo de excepción de negocio, agregue una línea al <c>switch</c>.
+/// Converts the exceptions thrown by the services into <c>ProblemDetails</c> responses with the
+/// correct HTTP status code. It only acts on <c>/api</c> routes; Blazor pages continue with <c>/Error</c>.
+/// To add a new type of business exception, add a line to the <c>switch</c>.
 /// </summary>
 public sealed class GlobalExceptionHandler(IProblemDetailsService problemDetails) : IExceptionHandler
 {

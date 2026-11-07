@@ -6,7 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace IndustrialPlanGenerator.Web.Server.Auth;
 
-/// <summary>Nombres de las políticas de autorización (una por rol; coinciden con <c>UserRole</c>).</summary>
+/// <summary>Names of the authorization policies (one per role; they match <c>UserRole</c>).</summary>
 public static class Policies
 {
     public const string Administrator = nameof(Administrator);
@@ -18,8 +18,8 @@ public static class Policies
 public static class AuthenticationExtensions
 {
     /// <summary>
-    /// Registra el hasher, el emisor de tokens, la autenticación JWT y las políticas por rol.
-    /// Falla al arrancar si falta la clave de firma o es demasiado corta.
+    /// Registers the hasher, the token issuer, JWT authentication and the role policies.
+    /// It fails at startup if the signing key is missing or too short.
     /// </summary>
     public static IServiceCollection AddJwtAuthentication(
         this IServiceCollection services, IConfiguration configuration)

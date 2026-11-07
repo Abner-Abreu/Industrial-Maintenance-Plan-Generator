@@ -12,12 +12,12 @@ using IndustrialPlanGenerator.Services.Users;
 
 namespace IndustrialPlanGenerator.Services;
 
-/// <summary>Registro en el contenedor de inyección de dependencias de los servicios de la capa Application.</summary>
+/// <summary>Registration of the Application layer services in the dependency injection container.</summary>
 public static class DependencyInjection
 {
     /// <summary>
-    /// Registra los servicios de la capa Application. Cada integrante añade aquí sus servicios,
-    /// por ejemplo: <c>services.AddScoped&lt;IAuthService, AuthService&gt;();</c>
+    /// Registers the Application layer services. Each team member adds their services here,
+    /// for example: <c>services.AddScoped&lt;IAuthService, AuthService&gt;();</c>
     /// </summary>
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {

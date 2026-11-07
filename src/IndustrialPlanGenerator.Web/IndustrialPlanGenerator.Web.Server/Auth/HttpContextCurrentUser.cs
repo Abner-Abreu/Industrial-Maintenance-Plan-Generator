@@ -4,7 +4,7 @@ using IndustrialPlanGenerator.Services.Exceptions;
 
 namespace IndustrialPlanGenerator.Web.Server.Auth;
 
-/// <summary>Obtiene el usuario de la sesión a partir de los claims del token (sub y role).</summary>
+/// <summary>Gets the session user from the token claims (sub and role).</summary>
 public sealed class HttpContextCurrentUser(IHttpContextAccessor accessor) : ICurrentUser
 {
     public Guid Id =>
