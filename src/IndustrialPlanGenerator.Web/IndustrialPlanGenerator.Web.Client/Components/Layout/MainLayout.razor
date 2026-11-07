@@ -1,0 +1,157 @@
+@inherits LayoutComponentBase
+@inject NavigationManager Navigation
+
+<div class="app-shell">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <span class="app-name">Rivendel</span>
+        </div>
+
+        <hr class="sidebar-divider" />
+
+        <nav class="sidebar-nav">
+            @foreach (var item in _navItems)
+            {
+                if (CanAccess(item))
+                {
+                    <NavLink class="nav-item" href="@item.Href" Match="@item.Match">
+                        <DynamicComponent Type="item.Icon" Parameters="_iconParams"/>
+                        <span class="nav-label">@item.Label</span>
+                    </NavLink>
+                }
+            }
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="user-card">
+                <div class="user-avatar">@_initials</div>
+
+                <div class="user-info">
+                    <span class="user-name">@_userName</span>
+                    <span class="user-role">@_userRole</span>
+                </div>
+
+                <div class="user-menu-wrapper">
+                    <button type="button" class="user-menu-button" aria-label="User menu" @onclick="ToggleMenu">
+                        <DynamicComponent Type="typeof(EllipsisVerticalIcon)" Parameters="_iconParams" />
+                    </button>
+
+                    @if (_menuOpen)
+                    {
+                        <div class="user-menu-backdrop" @onclick="CloseMenu"></div>
+                        <div class="user-menu">
+                            <button type="button" class="user-menu-item" @onclick="CloseSession">
+                                <DynamicComponent Type="typeof(LogOutIcon)" Parameters="_iconParams" />
+                                <span>Close session</span>
+                            </button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="content">
+        @Body
+    </main>
+</div>
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthState { get; set; }
+
+    /// <summary>
+    /// structure made for creating a nav item
+    /// </summary>
+    /// <param name="Label">displayed name</param>
+    /// <param name="Href">route to navigate to</param>
+    /// <param name="Icon">lucide icon</param>
+    /// <param name="Permissions">strings array of the roles which can access to this (empty = visible to everyone)
+    /// for adding a permission use the static strings from Models/Roles.cs
+    /// </param>
+    /// <param name="Match"></param>
+    private record NavItem(string Label, string Href, Type Icon, string[] Permissions, NavLinkMatch Match = NavLinkMatch.Prefix);
+
+    private readonly Dictionary<string, object> _iconParams = new()
+    {
+        ["ClassName"] = "nav-icon"
+    };
+
+    /// <summary>
+    /// each element builds a new nav item at layout
+    /// </summary>
+    private readonly List<NavItem> _navItems =
+    [
+        new("Main", "", typeof(HouseIcon), [], NavLinkMatch.All),
+        new("Admin", "admin", typeof(HouseIcon), [ClientRolesManagement.Administrator])
+    ];
+
+    private string _userName = "Guest";
+    private string _userRole = "";
+    private string _initials = "?";
+    private bool _menuOpen;
+
+    // roles of the current user, case-insensitive for comparing against NavItem.Permissions
+    private HashSet<string> _userRoles = new(StringComparer.OrdinalIgnoreCase);
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (AuthState is null) return;
+
+        var user = (await AuthState).User;
+        if (user.Identity?.IsAuthenticated != true) return;
+
+        _userName = user.Identity.Name ?? "User";
+        _userRoles = new HashSet<string>(GetUserRoles(user), StringComparer.OrdinalIgnoreCase);
+        _userRole = string.Join(", ", _userRoles);
+        _initials = GetInitials(_userName);
+    }
+
+    /// <summary>
+    /// Gets the role(s) of the authenticated user.
+    /// Looks for the standard role claim first and falls back to a raw "role" claim.
+    /// </summary>
+    /// <param name="user">the current claims principal</param>
+    /// <returns>the distinct role names, or an empty sequence if none was found</returns>
+    private static IEnumerable<string> GetUserRoles(ClaimsPrincipal user)
+    {
+        return user.FindAll(ClaimTypes.Role)
+            .Concat(user.FindAll("role"))
+            .Select(c => c.Value)
+            .Where(v => !string.IsNullOrWhiteSpace(v))
+            .Distinct(StringComparer.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// Filter template for nav items: an item is shown if it has no permissions
+    /// (public) or if any of the user's roles is listed in its Permissions.
+    /// </summary>
+    /// <param name="item">the nav item being built</param>
+    /// <returns>true if the current user can see the item</returns>
+    private bool CanAccess(NavItem item)
+    {
+        if (item.Permissions.Length == 0) return true;
+
+        return item.Permissions.Any(permission => _userRoles.Contains(permission));
+    }
+
+    private static string GetInitials(string name)
+    {
+        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        return parts.Length switch
+        {
+            0 => "?",
+            1 => parts[0][..1].ToUpperInvariant(),
+            _ => $"{parts[0][0]}{parts[^1][0]}".ToUpperInvariant()
+        };
+    }
+
+    private void ToggleMenu() => _menuOpen = !_menuOpen;
+    private void CloseMenu() => _menuOpen = false;
+
+    private void CloseSession()
+    {
+        _menuOpen = false;
+        Navigation.NavigateTo("/login", forceLoad: true);
+    }
+}

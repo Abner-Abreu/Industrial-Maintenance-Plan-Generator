@@ -4,7 +4,8 @@
     --color-primary: #101C2F;
     --color-accent: #1768E5;
     --color-accent-hover: #1257C2;
-    --color-text: #101C2F;
+    --color-text-secondary: white;
+    --color-text: var(--color-primary);
     --color-text-muted: #5b6475;
     --color-border: #d5dae3;
     --color-surface: #ffffff;
