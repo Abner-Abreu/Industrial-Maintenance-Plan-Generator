@@ -71,4 +71,53 @@ public class UserRepository : IUserRepository
     {
         await _context.Administrators.AddAsync(admin, ct);
     }
+
+    public async Task<IReadOnlyList<User>> GetByIdsAsync(IReadOnlyCollection<Guid> ids, CancellationToken ct = default)
+    {
+        return await _context.Users
+            .AsNoTracking()
+            .Where(u => ids.Contains(u.Id))
+            .ToListAsync(ct);
+    }
+
+    public async Task<(IReadOnlyList<User> Items, int TotalCount)> SearchAsync(
+        UserRole? role, Guid? lineId, string? text, int page, int pageSize, CancellationToken ct = default)
+    {
+        IQueryable<User> query = _context.Users.AsNoTracking();
+
+        if (role is not null)
+        {
+            var wantedRole = role.Value;
+            query = query.Where(u => u.Role == wantedRole);
+        }
+
+        if (!string.IsNullOrWhiteSpace(text))
+        {
+            var pattern = $"%{EscapeLike(text.Trim())}%";
+            query = query.Where(u => EF.Functions.ILike(u.Name, pattern, "\\"));
+        }
+
+        if (lineId is not null)
+        {
+            var wantedLine = lineId.Value;
+            // Usuario y registro de rol comparten Id: técnicos por TechnicianLines, operarios por OperatorLines.
+            query = query.Where(u =>
+                _context.TechnicianLines.Any(tl => tl.TechnicianId == u.Id && tl.LineId == wantedLine) ||
+                _context.OperatorLines.Any(ol => ol.OperatorId == u.Id && ol.LineId == wantedLine));
+        }
+
+        var total = await query.CountAsync(ct);
+
+        var items = await query
+            .OrderBy(u => u.Name)
+            .ThenBy(u => u.Id)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(ct);
+
+        return (items, total);
+    }
+
+    private static string EscapeLike(string value) =>
+        value.Replace("\\", "\\\\").Replace("%", "\\%").Replace("_", "\\_");
 }
