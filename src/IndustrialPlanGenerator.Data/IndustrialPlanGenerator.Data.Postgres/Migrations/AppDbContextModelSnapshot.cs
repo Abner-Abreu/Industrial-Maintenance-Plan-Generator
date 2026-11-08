@@ -27,6 +27,12 @@ namespace IndustrialPlanGenerator.Data.Postgres.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
 
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
+
                     b.HasKey("Id");
 
                     b.ToTable("administrators", (string)null);
@@ -181,6 +187,12 @@ namespace IndustrialPlanGenerator.Data.Postgres.Migrations
                     b.Property<int>("Age")
                         .HasColumnType("integer")
                         .HasColumnName("age");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
 
                     b.Property<Guid>("ShiftId")
                         .HasColumnType("uuid")
@@ -371,6 +383,12 @@ namespace IndustrialPlanGenerator.Data.Postgres.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
 
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
+
                     b.HasKey("Id");
 
                     b.ToTable("plant_managers", (string)null);
@@ -555,6 +573,12 @@ namespace IndustrialPlanGenerator.Data.Postgres.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
 
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
+
                     b.Property<string>("Specialty")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -604,6 +628,12 @@ namespace IndustrialPlanGenerator.Data.Postgres.Migrations
                         .HasColumnType("character varying(500)")
                         .HasColumnName("credentials");
 
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -628,7 +658,7 @@ namespace IndustrialPlanGenerator.Data.Postgres.Migrations
                     b.HasOne("IndustrialPlanGenerator.Domain.Entities.User", null)
                         .WithOne()
                         .HasForeignKey("IndustrialPlanGenerator.Domain.Entities.Administrator", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_administrator_user");
                 });
@@ -692,7 +722,7 @@ namespace IndustrialPlanGenerator.Data.Postgres.Migrations
                     b.HasOne("IndustrialPlanGenerator.Domain.Entities.User", null)
                         .WithOne()
                         .HasForeignKey("IndustrialPlanGenerator.Domain.Entities.Operator", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_operator_user");
 
@@ -807,7 +837,7 @@ namespace IndustrialPlanGenerator.Data.Postgres.Migrations
                     b.HasOne("IndustrialPlanGenerator.Domain.Entities.User", null)
                         .WithOne()
                         .HasForeignKey("IndustrialPlanGenerator.Domain.Entities.PlantManager", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_plant_manager_user");
                 });
@@ -879,7 +909,7 @@ namespace IndustrialPlanGenerator.Data.Postgres.Migrations
                     b.HasOne("IndustrialPlanGenerator.Domain.Entities.User", null)
                         .WithOne()
                         .HasForeignKey("IndustrialPlanGenerator.Domain.Entities.Technician", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_technician_user");
                 });
