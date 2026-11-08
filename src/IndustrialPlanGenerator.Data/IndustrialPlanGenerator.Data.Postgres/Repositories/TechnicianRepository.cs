@@ -60,6 +60,7 @@ public class TechnicianRepository : ITechnicianRepository
 
     public void Remove(Technician technician)
     {
-        _context.Technicians.Remove(technician);
+        technician.IsDeleted = true;
+        _context.Technicians.Update(technician);
     }
 }
