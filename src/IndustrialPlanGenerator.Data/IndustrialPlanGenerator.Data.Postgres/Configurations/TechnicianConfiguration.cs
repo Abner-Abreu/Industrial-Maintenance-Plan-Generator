@@ -17,11 +17,17 @@ public class TechnicianConfiguration : IEntityTypeConfiguration<Technician>
             .WithOne()
             .HasForeignKey<Technician>(t => t.Id)
             .HasConstraintName("fk_technician_user")
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.Property(t => t.Specialty)
             .HasColumnName("specialty")
             .IsRequired()
             .HasMaxLength(200);
+
+        builder.Property(t => t.IsDeleted)
+            .HasColumnName("is_deleted")
+            .HasDefaultValue(false);
+
+        builder.HasQueryFilter(t => !t.IsDeleted);
     }
 }
