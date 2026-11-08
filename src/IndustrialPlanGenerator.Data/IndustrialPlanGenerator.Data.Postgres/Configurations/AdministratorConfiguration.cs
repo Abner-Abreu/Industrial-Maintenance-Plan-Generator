@@ -18,6 +18,12 @@ public class AdministratorConfiguration : IEntityTypeConfiguration<Administrator
             .WithOne()
             .HasForeignKey<Administrator>(a => a.Id)
             .HasConstraintName("fk_administrator_user")
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Property(a => a.IsDeleted)
+            .HasColumnName("is_deleted")
+            .HasDefaultValue(false);
+
+        builder.HasQueryFilter(a => !a.IsDeleted);
     }
 }
