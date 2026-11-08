@@ -47,6 +47,7 @@ public class OperatorRepository : IOperatorRepository
 
     public void Remove(Operator Operator)
     {
-        _context.Operators.Remove(Operator);
+        Operator.IsDeleted = true;
+        _context.Operators.Update(Operator);
     }
 }
