@@ -20,7 +20,7 @@ public class OperatorConfiguration : IEntityTypeConfiguration<Operator>
             .WithOne()
             .HasForeignKey<Operator>(o => o.Id)
             .HasConstraintName("fk_operator_user")
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.Property(o => o.Age)
             .HasColumnName("age")
@@ -29,6 +29,12 @@ public class OperatorConfiguration : IEntityTypeConfiguration<Operator>
         builder.Property(o => o.ShiftId)
             .HasColumnName("shift_id")
             .IsRequired();
+
+        builder.Property(o => o.IsDeleted)
+            .HasColumnName("is_deleted")
+            .HasDefaultValue(false);
+
+        builder.HasQueryFilter(o => !o.IsDeleted);
 
         // FK to Shift
         builder.HasOne(o => o.Shift)
