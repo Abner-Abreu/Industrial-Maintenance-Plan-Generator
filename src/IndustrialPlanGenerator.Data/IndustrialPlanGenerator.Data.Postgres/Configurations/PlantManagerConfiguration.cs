@@ -17,6 +17,12 @@ public class PlantManagerConfiguration : IEntityTypeConfiguration<PlantManager>
             .WithOne()
             .HasForeignKey<PlantManager>(j => j.Id)
             .HasConstraintName("fk_plant_manager_user")
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Property(j => j.IsDeleted)
+            .HasColumnName("is_deleted")
+            .HasDefaultValue(false);
+
+        builder.HasQueryFilter(j => !j.IsDeleted);
     }
 }
