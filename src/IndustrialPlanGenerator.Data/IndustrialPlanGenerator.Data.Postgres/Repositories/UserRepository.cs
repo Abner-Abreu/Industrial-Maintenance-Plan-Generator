@@ -31,7 +31,8 @@ public class UserRepository : IUserRepository
     }
     public void Remove(User user) 
     {
-        _context.Users.Remove(user);
+        user.IsDeleted = true;
+        _context.Users.Update(user);
     }
     public void Update(User user)
     {
@@ -62,6 +63,12 @@ public class UserRepository : IUserRepository
     {
         await _context.PlantManagers.AddAsync(manager, ct);
     }
+    public void RemovePlantManager(PlantManager manager)
+    {
+        manager.IsDeleted = true;
+        _context.PlantManagers.Update(manager);
+    }
+    
     // Administrator
     public Task<Administrator?> GetAdministratorAsync(Guid id, CancellationToken ct = default)
     {
