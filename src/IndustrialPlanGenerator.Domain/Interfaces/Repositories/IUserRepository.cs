@@ -27,6 +27,7 @@ public interface IUserRepository
     // PlantManager
     Task<PlantManager?> GetPlantManagerAsync(Guid id, CancellationToken ct = default);
     Task AddPlantManagerAsync(PlantManager manager, CancellationToken ct = default);
+    void RemovePlantManager(PlantManager manager);
 
     // Administrator
     Task<Administrator?> GetAdministratorAsync(Guid id, CancellationToken ct = default);

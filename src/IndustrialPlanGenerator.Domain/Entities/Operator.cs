@@ -2,11 +2,13 @@ namespace IndustrialPlanGenerator.Domain.Entities;
 
 using IndustrialPlanGenerator.Domain.Common;
 
-public class Operator : Entity
+public class Operator : Entity, ISoftDeletable
 {
     public required int Age { get; set; }
 
     public required Guid ShiftId { get; set; }
+
+    public bool IsDeleted { get; set; }
 
     // Navigation properties
     public required Shift Shift { get; set; }

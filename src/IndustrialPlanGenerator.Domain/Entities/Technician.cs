@@ -2,9 +2,11 @@ namespace IndustrialPlanGenerator.Domain.Entities;
 
 using IndustrialPlanGenerator.Domain.Common;
 
-public class Technician : Entity
+public class Technician : Entity, ISoftDeletable
 {
     public required string Specialty { get; set; }
+
+    public bool IsDeleted { get; set; }
 
     // Navigation properties
     public required ICollection<TechnicianLine> Lines { get; set; } = new List<TechnicianLine>();

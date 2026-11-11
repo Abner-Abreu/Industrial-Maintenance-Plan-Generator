@@ -31,5 +31,11 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasColumnName("credentials")
             .IsRequired()
             .HasMaxLength(500);
+
+        builder.Property(u => u.IsDeleted)
+            .HasColumnName("is_deleted")
+            .HasDefaultValue(false);
+
+        builder.HasQueryFilter(u => !u.IsDeleted);
     }
 }
