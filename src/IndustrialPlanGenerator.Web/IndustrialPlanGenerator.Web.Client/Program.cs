@@ -15,6 +15,7 @@ builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<JwtAuthStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(sp =>
     sp.GetRequiredService<JwtAuthStateProvider>());
+builder.Services.AddScoped<LinesManagementService>();
 
 builder.Services.AddScoped<AuthService>();
 
