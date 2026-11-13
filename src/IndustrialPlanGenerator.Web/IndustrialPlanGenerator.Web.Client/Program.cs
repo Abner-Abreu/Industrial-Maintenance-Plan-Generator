@@ -23,5 +23,6 @@ builder.Services.AddScoped<AuthenticationStateProvider>(sp =>
 builder.Services.AddScoped<AuthService>();
 
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<CatalogService>();
 
 await builder.Build().RunAsync();
