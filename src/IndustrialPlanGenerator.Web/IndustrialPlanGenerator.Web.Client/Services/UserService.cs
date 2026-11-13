@@ -10,7 +10,7 @@ namespace IndustrialPlanGenerator.Web.Client.Services;
 /// <summary>
 /// Service responsible for managing users (Administrator role) by communicating with the backend API.
 /// </summary>
-public class UserService(HttpClient http, ILocalStorageService storage)
+public class UserService(HttpClient http)
 {
     /// <summary>
     /// Retrieves a paginated list of users based on optional filters.
@@ -31,8 +31,7 @@ public class UserService(HttpClient http, ILocalStorageService storage)
             if (lineId.HasValue) requestUrl += $"&lineaId={lineId}";
             if (!string.IsNullOrWhiteSpace(text)) requestUrl += $"&texto={text}";
             if (!string.IsNullOrWhiteSpace(order)) requestUrl += $"&orden={order}&dir={direction}";
-
-            await AddAuthHeaderAsync();
+            
             var response = await http.GetAsync(requestUrl);
 
             if (response.IsSuccessStatusCode)
@@ -56,7 +55,6 @@ public class UserService(HttpClient http, ILocalStorageService storage)
     {
         try
         {
-            await AddAuthHeaderAsync();
             var response = await http.GetAsync($"api/usuarios/{id}");
 
             if (response.IsSuccessStatusCode)
@@ -80,7 +78,6 @@ public class UserService(HttpClient http, ILocalStorageService storage)
     {
         try
         {
-            await AddAuthHeaderAsync();
             var response = await http.PostAsJsonAsync("api/usuarios", request);
 
             if (response.IsSuccessStatusCode)
@@ -104,7 +101,6 @@ public class UserService(HttpClient http, ILocalStorageService storage)
     {
         try
         {
-            await AddAuthHeaderAsync();
             var response = await http.PutAsJsonAsync($"api/usuarios/{id}", request);
 
             if (response.IsSuccessStatusCode)
@@ -128,7 +124,6 @@ public class UserService(HttpClient http, ILocalStorageService storage)
     {
         try
         {
-            await AddAuthHeaderAsync();
             var response = await http.DeleteAsync($"api/usuarios/{id}");
 
             if (response.IsSuccessStatusCode)
@@ -149,7 +144,6 @@ public class UserService(HttpClient http, ILocalStorageService storage)
     {
         try
         {
-            await AddAuthHeaderAsync();
             var response = await http.PutAsJsonAsync($"api/usuarios/{id}/lineas-tecnico", request);
             return response.IsSuccessStatusCode 
                 ? ServiceResult<bool>.Success(true) 
@@ -168,7 +162,6 @@ public class UserService(HttpClient http, ILocalStorageService storage)
     {
         try
         {
-            await AddAuthHeaderAsync();
             var response = await http.PutAsJsonAsync($"api/usuarios/{id}/lineas-operario", request);
             return response.IsSuccessStatusCode 
                 ? ServiceResult<bool>.Success(true) 
@@ -181,18 +174,6 @@ public class UserService(HttpClient http, ILocalStorageService storage)
     }
 
     // --- Helper Methods ---
-
-    /// <summary>
-    /// Retrieves the JWT token from LocalStorage and adds it to the HttpClient headers.
-    /// </summary>
-    private async Task AddAuthHeaderAsync()
-    {
-        var token = await storage.GetItemAsStringAsync("authToken");
-        if (!string.IsNullOrWhiteSpace(token))
-        {
-            http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-        }
-    }
 
     /// <summary>
     /// Parses the API error response (ProblemDetails) into a user-friendly message.
