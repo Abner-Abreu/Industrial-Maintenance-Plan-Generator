@@ -18,4 +18,6 @@ builder.Services.AddScoped<AuthenticationStateProvider>(sp =>
 
 builder.Services.AddScoped<AuthService>();
 
+builder.Services.AddScoped<UserService>();
+
 await builder.Build().RunAsync();
