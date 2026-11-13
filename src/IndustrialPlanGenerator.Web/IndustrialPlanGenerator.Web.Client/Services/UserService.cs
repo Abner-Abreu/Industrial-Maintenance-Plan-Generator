@@ -1,6 +1,7 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Blazored.LocalStorage;
+
 using IndustrialPlanGenerator.Services.Contracts.Common;
 using IndustrialPlanGenerator.Services.Contracts.Users;
 using IndustrialPlanGenerator.Web.Client.Models;
@@ -10,7 +11,7 @@ namespace IndustrialPlanGenerator.Web.Client.Services;
 /// <summary>
 /// Service responsible for managing users (Administrator role) by communicating with the backend API.
 /// </summary>
-public class UserService(HttpClient http)
+public class UserService(HttpClient http) : ApiServiceBase
 {
     /// <summary>
     /// Retrieves a paginated list of users based on optional filters.
@@ -178,25 +179,4 @@ public class UserService(HttpClient http)
     /// <summary>
     /// Parses the API error response (ProblemDetails) into a user-friendly message.
     /// </summary>
-    private static async Task<ServiceResult<T>> HandleErrorAsync<T>(HttpResponseMessage response)
-    {
-        var errorContent = await response.Content.ReadAsStringAsync();
-        
-        // Note: Because we don't have the exact shape of the ProblemDetails here, 
-        // we try to read a "detail" or "title" field, or just return the raw status code.
-        try
-        {
-            using var jsonDoc = System.Text.Json.JsonDocument.Parse(errorContent);
-            if (jsonDoc.RootElement.TryGetProperty("detail", out var detail))
-                return ServiceResult<T>.Failure(detail.GetString() ?? "An error occurred.");
-            if (jsonDoc.RootElement.TryGetProperty("title", out var title))
-                return ServiceResult<T>.Failure(title.GetString() ?? "An error occurred.");
-        }
-        catch
-        {
-            // If it's not JSON, fall back to a generic message.
-        }
-
-        return ServiceResult<T>.Failure($"Error {(int)response.StatusCode}: {response.ReasonPhrase}");
-    }
 }
