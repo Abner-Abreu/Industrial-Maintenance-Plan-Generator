@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
+builder.Services.AddScoped<AuthMessageHandler>();
+
 builder.Services.AddScoped(sp => 
 {
     var handler = sp.GetRequiredService<AuthMessageHandler>();

@@ -1,0 +1,93 @@
+@page "/admin"
+
+<PageTitle>Administration</PageTitle>
+
+<AuthorizeView Roles="@ClientRolesManagement.Administrator">
+    <Authorized>
+        <div class="admin-container">
+            
+            <!-- Header section with the create button -->
+            <div class="admin-header">
+                <h1>User Management</h1>
+                <button class="btn btn-primary" @onclick="ShowCreateForm">
+                    + Register Worker
+                </button>
+            </div>
+
+            <!-- Main content split into two panels -->
+            <div class="admin-content">
+                
+                <!-- Left panel: User List placeholder -->
+                <div class="admin-left-panel">
+                    <div class="panel-placeholder">
+                        <p>User List will go here...</p>
+                    </div>
+                </div>
+
+                <!-- Right panel: User Detail or Create Form placeholder -->
+                <div class="admin-right-panel">
+                    @if (_isCreating)
+                    {
+                        <div class="panel-placeholder">
+                            <p>Create User Form will go here...</p>
+                            <button class="btn" @onclick="CancelCreate">Cancel</button>
+                        </div>
+                    }
+                    else if (_selectedUserId.HasValue)
+                    {
+                        <div class="panel-placeholder">
+                            <p>Details for user: @_selectedUserId</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="panel-placeholder empty-state">
+                            <p>Select a user from the list to view details.</p>
+                        </div>
+                    }
+                </div>
+
+            </div>
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <div class="alert alert-danger m-4" role="alert">
+            You do not have permission to view this page. Only Administrators can access this section.
+        </div>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    // State to track which user is selected in the list
+    private Guid? _selectedUserId;
+
+    // State to toggle between viewing details and creating a new user
+    private bool _isCreating;
+
+    /// <summary>
+    /// Handles the selection of a user from the list.
+    /// </summary>
+    /// <param name="userId">The ID of the selected user.</param>
+    private void OnUserSelected(Guid userId)
+    {
+        _selectedUserId = userId;
+        _isCreating = false; // Hide create form if it was open
+    }
+
+    /// <summary>
+    /// Shows the form to create a new user.
+    /// </summary>
+    private void ShowCreateForm()
+    {
+        _isCreating = true;
+        _selectedUserId = null; // Clear selection when creating
+    }
+
+    /// <summary>
+    /// Cancels the creation process and returns to the default state.
+    /// </summary>
+    private void CancelCreate()
+    {
+        _isCreating = false;
+    }
+}
