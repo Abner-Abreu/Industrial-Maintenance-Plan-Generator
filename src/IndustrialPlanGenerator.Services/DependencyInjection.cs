@@ -27,7 +27,7 @@ public static class DependencyInjection
         services.TryAddScoped<ILineService, LineServiceStub>();
         services.TryAddScoped<IEquipmentSystemService, EquipmentSystemServiceStub>();
         services.TryAddScoped<ISensorService, SensorServiceStub>();
-        services.TryAddScoped<ICatalogService, CatalogServiceStub>();
+        services.AddScoped<ICatalogService, CatalogService>();
         services.TryAddScoped<IEquipmentStatusService, EquipmentStatusServiceStub>();
 
 
