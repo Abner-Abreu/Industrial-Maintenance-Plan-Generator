@@ -3,7 +3,7 @@ using IndustrialPlanGenerator.Services.Contracts.Users;
 
 namespace IndustrialPlanGenerator.Services.Users;
 
-/// <summary>User management (USR-1 to USR-4, USR-6 to USR-8).</summary>
+/// <summary>User management (USR-1 to USR-8).</summary>
 public interface IUserService
 {
     /// <summary>Lists users with filters and pagination (USR-1). Administrator only (enforced at the endpoint).</summary>
@@ -46,6 +46,17 @@ public interface IUserService
     /// <exception cref="Exceptions.ConflictException">Another user already has that name (HTTP 409).</exception>
     /// <exception cref="Domain.Exceptions.DomainException">Operator under age or nonexistent shift (HTTP 422).</exception>
     Task<UserDetailDto> UpdateAsync(Guid id, UpdateUserRequest request, CancellationToken ct = default);
+
+    /// <summary>
+    /// Deletes a user (USR-5). It is a soft delete: the user and its role record are marked as deleted and stop
+    /// appearing in queries (the user can no longer sign in), but the history that refers to them is kept.
+    /// Administrator only (enforced at the endpoint).
+    /// </summary>
+    /// <param name="id">User ID.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <exception cref="Domain.Exceptions.EntityNotFoundException">The user does not exist or was already deleted (HTTP 404).</exception>
+    /// <exception cref="Domain.Exceptions.DomainException">Attempt to delete oneself or the last administrator (HTTP 422).</exception>
+    Task DeleteAsync(Guid id, CancellationToken ct = default);
 
     /// <summary>
     /// Replaces a technician's lines with their permission (USR-6). Changing the lines does not alter already
