@@ -1,3 +1,5 @@
+@inject UserService UserService
+
 <div class="user-list-container">
     @if (_isLoading)
     {
@@ -11,7 +13,7 @@
             <p>@_errorMessage</p>
         </div>
     }
-    else if (_users == null || !_users.Any())
+    else if (_groupedUsers == null || !_groupedUsers.Any())
     {
         <div class="empty-state">
             <p>No users found.</p>
@@ -20,23 +22,22 @@
     else
     {
         <table class="user-table">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Role</th>
-                </tr>
-            </thead>
             <tbody>
-                @foreach (var user in _users)
+                @foreach (var group in _groupedUsers)
                 {
-                    <tr class="user-row" @onclick="() => SelectUser(user.Id)">
-                        <td class="user-name">@user.Name</td>
-                        <td>
-                            <span class="role-badge role-@user.Role.ToLower()">
-                                @user.Role
-                            </span>
-                        </td>
+                    <!-- Role Header -->
+                    <tr class="role-header-row">
+                        <td colspan="2">@group.Key</td>
                     </tr>
+
+                    <!-- Users in this role -->
+                    @foreach (var user in group.Value)
+                    {
+                        var isSelected = _selectedUserId == user.Id;
+                        <tr class="user-row @(isSelected ? "selected" : "")" @onclick="() => SelectUser(user.Id)">
+                            <td class="user-name">@user.Name</td>
+                        </tr>
+                    }
                 }
             </tbody>
         </table>
@@ -44,12 +45,15 @@
 </div>
 
 @code {
-    // The list of users retrieved from the API
-    private List<UserSummaryDto>? _users;
+    // The grouped list of users (Key = Role name)
+    private Dictionary<string, List<UserSummaryDto>>? _groupedUsers;
     
     // State to manage loading and error UI
     private bool _isLoading = true;
     private string? _errorMessage;
+
+    // Tracks the currently selected user ID to apply the 'selected' CSS class
+    private Guid? _selectedUserId;
 
     // Event callback to notify the parent component when a user is selected
     [Parameter]
@@ -64,7 +68,7 @@
     }
 
     /// <summary>
-    /// Fetches the list of users from the API.
+    /// Fetches the list of users from the API and groups them by role.
     /// </summary>
     private async Task LoadUsersAsync()
     {
@@ -75,7 +79,18 @@
         
         if (result.IsSuccess && result.Data != null)
         {
-            _users = result.Data.Items.ToList();
+            // Group users by Role and order the groups by a custom priority
+            var roleOrder = new Dictionary<string, int> {
+                { "Administrator", 1 },
+                { "PlantManager", 2 },
+                { "Technician", 3 },
+                { "Operator", 4 }
+            };
+
+            _groupedUsers = result.Data.Items
+                .GroupBy(u => u.Role)
+                .OrderBy(g => roleOrder.TryGetValue(g.Key, out var order) ? order : 99)
+                .ToDictionary(g => g.Key, g => g.ToList());
         }
         else
         {
@@ -87,10 +102,12 @@
 
     /// <summary>
     /// Triggers the event to notify the parent component that a user was selected.
+    /// Updates the local state to show which row is selected.
     /// </summary>
     /// <param name="userId">The ID of the selected user.</param>
     private async Task SelectUser(Guid userId)
     {
+        _selectedUserId = userId;
         await OnUserSelected.InvokeAsync(userId);
     }
 }
