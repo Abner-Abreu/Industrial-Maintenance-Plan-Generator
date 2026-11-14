@@ -1,7 +1,4 @@
-using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using Blazored.LocalStorage;
-
 using IndustrialPlanGenerator.Services.Contracts.Common;
 using IndustrialPlanGenerator.Services.Contracts.Users;
 using IndustrialPlanGenerator.Web.Client.Models;
@@ -27,11 +24,11 @@ public class UserService(HttpClient http) : ApiServiceBase
     {
         try
         {
-            var requestUrl = $"api/usuarios?page={page}&size={size}";
+            var requestUrl = $"/api/users?page={page}&pageSize={size}";
             if (!string.IsNullOrWhiteSpace(role)) requestUrl += $"&role={role}";
-            if (lineId.HasValue) requestUrl += $"&lineaId={lineId}";
-            if (!string.IsNullOrWhiteSpace(text)) requestUrl += $"&texto={text}";
-            if (!string.IsNullOrWhiteSpace(order)) requestUrl += $"&orden={order}&dir={direction}";
+            if (lineId.HasValue) requestUrl += $"&lineId={lineId}";
+            if (!string.IsNullOrWhiteSpace(text)) requestUrl += $"&text={text}";
+            if (!string.IsNullOrWhiteSpace(order)) requestUrl += $"&sortBy={order}&sortDirection={direction}";
             
             var response = await http.GetAsync(requestUrl);
 
@@ -56,7 +53,7 @@ public class UserService(HttpClient http) : ApiServiceBase
     {
         try
         {
-            var response = await http.GetAsync($"api/usuarios/{id}");
+            var response = await http.GetAsync($"/api/users/{id}");
 
             if (response.IsSuccessStatusCode)
             {
@@ -79,7 +76,7 @@ public class UserService(HttpClient http) : ApiServiceBase
     {
         try
         {
-            var response = await http.PostAsJsonAsync("api/usuarios", request);
+            var response = await http.PostAsJsonAsync("/api/users", request);
 
             if (response.IsSuccessStatusCode)
             {
@@ -102,7 +99,7 @@ public class UserService(HttpClient http) : ApiServiceBase
     {
         try
         {
-            var response = await http.PutAsJsonAsync($"api/usuarios/{id}", request);
+            var response = await http.PutAsJsonAsync($"/api/users/{id}", request);
 
             if (response.IsSuccessStatusCode)
             {
@@ -125,7 +122,7 @@ public class UserService(HttpClient http) : ApiServiceBase
     {
         try
         {
-            var response = await http.DeleteAsync($"api/usuarios/{id}");
+            var response = await http.DeleteAsync($"/api/users/{id}");
 
             if (response.IsSuccessStatusCode)
                 return ServiceResult<bool>.Success(true);
@@ -145,7 +142,7 @@ public class UserService(HttpClient http) : ApiServiceBase
     {
         try
         {
-            var response = await http.PutAsJsonAsync($"api/usuarios/{id}/lineas-tecnico", request);
+            var response = await http.PutAsJsonAsync($"/api/users/{id}/technician-lines", request);
             return response.IsSuccessStatusCode 
                 ? ServiceResult<bool>.Success(true) 
                 : await HandleErrorAsync<bool>(response);
@@ -163,7 +160,7 @@ public class UserService(HttpClient http) : ApiServiceBase
     {
         try
         {
-            var response = await http.PutAsJsonAsync($"api/usuarios/{id}/lineas-operario", request);
+            var response = await http.PutAsJsonAsync($"/api/users/{id}/operator-lines", request);
             return response.IsSuccessStatusCode 
                 ? ServiceResult<bool>.Success(true) 
                 : await HandleErrorAsync<bool>(response);
@@ -173,10 +170,4 @@ public class UserService(HttpClient http) : ApiServiceBase
             return ServiceResult<bool>.Failure($"Network error: {ex.Message}");
         }
     }
-
-    // --- Helper Methods ---
-
-    /// <summary>
-    /// Parses the API error response (ProblemDetails) into a user-friendly message.
-    /// </summary>
 }

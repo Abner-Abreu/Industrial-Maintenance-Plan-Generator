@@ -16,7 +16,7 @@ public class CatalogService(HttpClient http) : ApiServiceBase
     {
         try
         {
-            var response = await http.GetAsync("api/catalogos/turnos");
+            var response = await http.GetAsync("/api/catalogs/shifts");
 
             if (response.IsSuccessStatusCode)
             {
