@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace IndustrialPlanGenerator.Web.Server.Endpoints;
 
-/// <summary>User endpoints (USR-1 to USR-4 and USR-6 to USR-8).</summary>
+/// <summary>User endpoints (USR-1 to USR-8).</summary>
 public static class UserEndpoints
 {
     public static IEndpointRouteBuilder MapUserEndpoints(this IEndpointRouteBuilder app)
@@ -61,6 +61,18 @@ public static class UserEndpoints
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status409Conflict)
+            .ProducesProblem(StatusCodes.Status422UnprocessableEntity);
+
+        group.MapDelete("/{id:guid}", Delete)
+            .RequireAuthorization(Policies.Administrator)
+            .WithName("DeleteUser")
+            .WithSummary("Deletes a user (USR-5).")
+            .WithDescription("Soft delete: the user and its role record stop appearing and can no longer sign in, " +
+                             "but the history is kept. An administrator cannot delete themselves or the last administrator.")
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status403Forbidden)
+            .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status422UnprocessableEntity);
 
         group.MapPut("/{id:guid}/technician-lines", SetTechnicianLines)
@@ -128,6 +140,12 @@ public static class UserEndpoints
     private static async Task<Ok<UserDetailDto>> Update(
         Guid id, [FromBody] UpdateUserRequest request, IUserService users, CancellationToken ct)
         => TypedResults.Ok(await users.UpdateAsync(id, request, ct));
+
+    private static async Task<NoContent> Delete(Guid id, IUserService users, CancellationToken ct)
+    {
+        await users.DeleteAsync(id, ct);
+        return TypedResults.NoContent();
+    }
 
     private static async Task<Ok<UserDetailDto>> SetTechnicianLines(
         Guid id, [FromBody] SetTechnicianLinesRequest request, IUserService users, CancellationToken ct)
