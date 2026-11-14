@@ -1,0 +1,83 @@
+.user-list-container {
+    height: 100%;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.user-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.user-table th {
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #e0e0e0;
+    font-weight: 600;
+    color: #555;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.user-table td {
+    padding: 1rem;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+}
+
+.user-row {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.user-row:hover {
+    background-color: #f1f5f9;
+}
+
+.user-name {
+    font-weight: 500;
+    color: #333;
+}
+
+/* Role Badges (basic styling, adjust colors if you have global classes) */
+.role-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.role-administrator {
+    background-color: #e3f2fd;
+    color: #1565c0;
+}
+
+.role-technician {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.role-operator {
+    background-color: #fff3e0;
+    color: #e65100;
+}
+
+.role-plantmanager {
+    background-color: #f3e5f5;
+    color: #6a1b9a;
+}
+
+/* States */
+.loading-state, .empty-state, .error-state {
+    padding: 2rem;
+    text-align: center;
+    color: #666;
+}
+
+.error-state {
+    color: #d32f2f;
+}

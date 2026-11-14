@@ -16,5 +16,8 @@
 @using System.Security.Claims
 @using IndustrialPlanGenerator.Web.Client.Services
 @using IndustrialPlanGenerator.Domain.Enums;
+@using IndustrialPlanGenerator.Services.Contracts.Users
+@inject UserService UserService
+@using IndustrialPlanGenerator.Web.Client.Components.Admin
 
 @attribute [Authorize]
