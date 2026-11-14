@@ -179,6 +179,60 @@ public sealed class UserService(
         return await BuildDetailAsync(user, ct);
     }
 
+    // ======================= USR-5 =======================
+
+    public async Task DeleteAsync(Guid id, CancellationToken ct = default)
+    {
+        // Regla de negocio: nadie puede eliminarse a sí mismo.
+        if (currentUser.Id == id)
+            throw new DomainException("No puede eliminar su propio usuario.");
+
+        // El filtro global de borrado lógico hace que un usuario ya eliminado no se encuentre (404).
+        var user = await uow.Users.GetByIdAsync(id, ct)
+            ?? throw new EntityNotFoundException(typeof(User), id);
+
+        // Debe quedar siempre al menos un administrador activo.
+        if (user.Role == UserRole.Administrator)
+        {
+            var (_, activeAdministrators) = await uow.Users.SearchAsync(UserRole.Administrator, null, null, 1, 1, ct);
+            if (activeAdministrators <= 1)
+                throw new DomainException("No se puede eliminar al último administrador.");
+        }
+
+        // Borrado lógico: se marca el registro de rol y el usuario, para que ninguno de los dos aparezca en las
+        // consultas. Las filas se conservan, así que el historial que las referencia sigue siendo válido.
+        switch (user.Role)
+        {
+            case UserRole.Technician:
+                var technician = await uow.Technicians.GetByIdAsync(id, ct)
+                    ?? throw new EntityNotFoundException(typeof(Technician), id);
+                uow.Technicians.Remove(technician);
+                break;
+
+            case UserRole.Operator:
+                var op = await uow.Operators.GetByIdAsync(id, ct)
+                    ?? throw new EntityNotFoundException(typeof(Operator), id);
+                uow.Operators.Remove(op);
+                break;
+
+            case UserRole.PlantManager:
+                var manager = await uow.Users.GetPlantManagerAsync(id, ct)
+                    ?? throw new EntityNotFoundException(typeof(PlantManager), id);
+                uow.Users.RemovePlantManager(manager);
+                break;
+
+            case UserRole.Administrator:
+                // IUserRepository no tiene RemoveAdministrator: la entidad ya está rastreada, basta marcarla.
+                var admin = await uow.Users.GetAdministratorAsync(id, ct)
+                    ?? throw new EntityNotFoundException(typeof(Administrator), id);
+                admin.IsDeleted = true;
+                break;
+        }
+
+        uow.Users.Remove(user);
+        await uow.SaveChangesAsync(ct);
+    }
+
     // ======================= USR-6 =======================
 
     public async Task<UserDetailDto> SetTechnicianLinesAsync(
