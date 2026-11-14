@@ -1,8 +1,163 @@
 @page "/lines"
 @attribute [Authorize(Roles = "Administrator")]
+@using IndustrialPlanGenerator.Services.Contracts.Lines
+@using IndustrialPlanGenerator.Web.Client.Services.LinesManagementService
+@implements IDisposable
+@inject ILinesManagementService LinesService
 
-<h3>LinesManagement</h3>
+<h2 class="page-title">Lines Management</h2>
+
+<div class="lines-page">
+    <section class="lines-panel lines-list">
+        <h3>Lines</h3>
+
+        @if (_loadingList)
+        {
+            <p class="muted">Loading...</p>
+        }
+        else if (_listError is not null)
+        {
+            <p class="error">@_listError</p>
+        }
+        else if (_lines.Count == 0)
+        {
+            <p class="muted">No lines found.</p>
+        }
+        else
+        {
+            <ul>
+                @foreach (var line in _lines)
+                {
+                    <li>
+                        <button type="button"
+                                class="line-item @(line.Id == _selectedId ? "selected" : "")"
+                                @onclick="() => SelectLineAsync(line.Id)">
+                            <span class="line-info">
+                                <span class="line-name">@line.Name</span>
+                                <span class="line-process">@line.ProductiveProcess</span>
+                            </span>
+                            <span class="line-count" title="Systems">@line.SystemCount</span>
+                        </button>
+                    </li>
+                }
+            </ul>
+        }
+    </section>
+
+    <section class="lines-panel lines-detail">
+        @if (_selectedId is null)
+        {
+            <p class="muted">Select a line to see its details.</p>
+        }
+        else if (_loadingDetail)
+        {
+            <p class="muted">Loading...</p>
+        }
+        else if (_detailError is not null)
+        {
+            <p class="error">@_detailError</p>
+        }
+        else if (_detail is not null)
+        {
+            <h3>@_detail.Name</h3>
+            <p class="detail-process">@_detail.ProductiveProcess</p>
+
+            <h4>Systems</h4>
+            @if (_detail.Systems.Count == 0)
+            {
+                <p class="muted">This line has no systems.</p>
+            }
+            else
+            {
+                <ul>
+                    @foreach (var system in _detail.Systems)
+                    {
+                        <li class="system-item">
+                            <div class="system-header">
+                                <span class="system-name">@system.Name</span>
+                                <span class="system-state">@system.OperativeState</span>
+                            </div>
+                            <p class="system-description">@system.Description</p>
+                        </li>
+                    }
+                </ul>
+            }
+        }
+    </section>
+</div>
 
 @code {
-    
+    private readonly CancellationTokenSource _cts = new();
+
+    private IReadOnlyList<LineSummaryDto> _lines = Array.Empty<LineSummaryDto>();
+    private bool _loadingList = true;
+    private string? _listError;
+
+    private Guid? _selectedId;
+    private LineDetailDto? _detail;
+    private bool _loadingDetail;
+    private string? _detailError;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _lines = await LinesService.LoadLinesAsync(_cts.Token);
+        }
+        catch (OperationCanceledException)
+        {
+            return;
+        }
+        catch (Exception)
+        {
+            _listError = "Could not load the lines.";
+        }
+        finally
+        {
+            _loadingList = false;
+        }
+    }
+
+    private async Task SelectLineAsync(Guid id)
+    {
+        _selectedId = id;
+        _detail = null;
+        _detailError = null;
+        _loadingDetail = true;
+
+        try
+        {
+            var detail = await LinesService.LoadLineAsync(id, _cts.Token);
+
+            // Ignore the response if the user selected another line while this one was loading.
+            if (_selectedId == id)
+            {
+                _detail = detail;
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            return;
+        }
+        catch (Exception)
+        {
+            if (_selectedId == id)
+            {
+                _detailError = "Could not load the line details.";
+            }
+        }
+        finally
+        {
+            if (_selectedId == id)
+            {
+                _loadingDetail = false;
+            }
+        }
+    }
+
+    public void Dispose()
+    {
+        _cts.Cancel();
+        _cts.Dispose();
+    }
 }
