@@ -1,31 +1,6 @@
-.page-title {
-    margin: 1rem 1rem 0;
-}
+/* Page-specific styles. Shared layout (.page-title, .split-layout, .split-panel) lives in app.css. */
 
-.lines-page {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1rem;
-    margin: 1rem;
-    /* Each box is only as tall as its content, not as tall as the grid row */
-    align-items: start;
-}
-
-/* Desktop: list on the left, details on the right */
-@media (min-width: 768px) {
-    .lines-page {
-        grid-template-columns: minmax(220px, 1fr) 2fr;
-    }
-}
-
-.lines-panel {
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    padding: 1rem;
-    min-width: 0;
-}
-
-.lines-panel ul {
+.split-panel ul {
     list-style: none;
     margin: 0;
     padding: 0;
@@ -36,21 +11,25 @@
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    padding: 0.5rem;
+    padding: 0.5rem 0.75rem;
     border: 0;
-    border-radius: 4px;
+    border-radius: 0.5rem;
     background: none;
+    font-family: var(--font-body);
+    font-size: inherit;
+    line-height: inherit;
+    color: var(--color-text);
     text-align: left;
     cursor: pointer;
+    transition: background-color 0.15s ease;
 }
 
 .line-item:hover {
-    background: #f0f0f0;
+    background: rgba(23, 104, 229, 0.06);
 }
 
 .line-item.selected {
-    background: #e2e8f0;
-    font-weight: 600;
+    background: rgba(23, 104, 229, 0.12);
 }
 
 .line-info {
@@ -59,26 +38,34 @@
     min-width: 0;
 }
 
+.line-name {
+    font-weight: 500;
+}
+
+.line-item.selected .line-name {
+    font-weight: 700;
+}
+
 .line-process {
-    color: #666;
+    color: var(--color-text-muted);
     font-size: 0.8125rem;
     font-weight: 400;
 }
 
 .line-count {
-    color: #666;
+    color: var(--color-text-muted);
     font-size: 0.875rem;
     margin-left: 0.5rem;
 }
 
 .detail-process {
-    color: #666;
+    color: var(--color-text-muted);
     margin-top: 0;
 }
 
 .system-item {
-    padding: 0.5rem 0;
-    border-top: 1px solid #eee;
+    padding: 0.625rem 0;
+    border-top: 1px solid var(--color-border);
 }
 
 .system-header {
@@ -92,17 +79,17 @@
 }
 
 .system-state {
-    color: #666;
+    color: var(--color-text-muted);
     font-size: 0.875rem;
 }
 
 .system-description {
     margin: 0.25rem 0 0;
-    color: #444;
+    color: var(--color-text-muted);
 }
 
 .muted {
-    color: #666;
+    color: var(--color-text-muted);
 }
 
 .error {

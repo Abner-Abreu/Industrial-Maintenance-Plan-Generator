@@ -7,8 +7,8 @@
 
 <h2 class="page-title">Lines Management</h2>
 
-<div class="lines-page">
-    <section class="lines-panel lines-list">
+<div class="split-layout">
+    <section class="split-panel">
         <h3>Lines</h3>
 
         @if (_loadingList)
@@ -44,7 +44,7 @@
         }
     </section>
 
-    <section class="lines-panel lines-detail">
+    <section class="split-panel">
         @if (_selectedId is null)
         {
             <p class="muted">Select a line to see its details.</p>

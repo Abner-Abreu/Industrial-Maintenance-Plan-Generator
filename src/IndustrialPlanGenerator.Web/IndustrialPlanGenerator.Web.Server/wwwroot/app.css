@@ -86,3 +86,42 @@ a:hover {
 .form-control:hover:not(:focus):not(:disabled) {
     border-color: var(--color-accent);
 }
+
+/* --------------------------------------------------------------------- */
+/* ---- Shared page layout: append this block to the end of app.css ---- */
+/* --------------------------------------------------------------------- */
+
+.page-title {
+    margin: 1rem 1rem 0;
+}
+
+/*
+ * Two-column layout: a list of items on the left, details on the right.
+ * Stacks vertically on mobile.
+ */
+.split-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin: 1rem;
+    /* Each box is only as tall as its content, not as tall as the grid row */
+    align-items: start;
+}
+
+@media (min-width: 768px) {
+    .split-layout {
+        grid-template-columns: minmax(220px, 1fr) 2fr;
+    }
+}
+
+.split-panel {
+    min-width: 0;
+    padding: 1rem;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+}
+
+/* --------------------------------------------------------------------- */
+/* ---- END ---- */
+/* --------------------------------------------------------------------- */
