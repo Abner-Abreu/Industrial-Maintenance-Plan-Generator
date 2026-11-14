@@ -1,0 +1,259 @@
+@inject UserService UserService
+@inject CatalogService CatalogService
+@using IndustrialPlanGenerator.Services.Contracts.Catalogs
+
+<div class="user-detail-container">
+    @if (_isLoading)
+    {
+        <div class="loading-state">
+            <p>Loading details...</p>
+        </div>
+    }
+    else if (_errorMessage != null)
+    {
+        <div class="error-state">
+            <p>@_errorMessage</p>
+        </div>
+    }
+    else if (_user == null)
+    {
+        <div class="empty-state">
+            <p>Select a user from the list to view details.</p>
+        </div>
+    }
+    else
+    {
+        <div class="detail-header">
+            <h2>@_user.Name</h2>
+            <span class="role-badge">@_user.Role</span>
+        </div>
+
+        <div class="detail-body">
+            @if (_isEditing)
+            {
+                <!-- EDIT MODE -->
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" class="form-control" @bind="_editModel.Name" />
+                </div>
+
+                @if (_user.Role == "Technician")
+                {
+                    <div class="form-group">
+                        <label>Specialty</label>
+                        <input type="text" class="form-control" @bind="_editModel.Specialty" />
+                    </div>
+                }
+
+                @if (_user.Role == "Operator")
+                {
+                    <div class="form-group">
+                        <label>Age</label>
+                        <input type="number" class="form-control" @bind="_editModel.Age" />
+                    </div>
+                    <div class="form-group">
+                        <label>Shift</label>
+                        @if (_shifts == null)
+                        {
+                            <p>Loading shifts...</p>
+                        }
+                        else
+                        {
+                            <select class="form-control" @bind="_editModel.ShiftId">
+                                <option value="">Select a shift...</option>
+                                @foreach (var shift in _shifts)
+                                {
+                                    <option value="@shift.Id">@shift.Name (@shift.Schedule)</option>
+                                }
+                            </select>
+                        }
+                    </div>
+                }
+
+                <div class="form-actions">
+                    <button class="btn btn-primary" @onclick="SaveChanges">Accept</button>
+                    <button class="btn btn-secondary" @onclick="CancelEdit">Cancel</button>
+                </div>
+            }
+            else
+            {
+                <!-- READ MODE -->
+                
+                @if (_user.Role == "Technician")
+                {
+                    <div class="detail-row">
+                        <strong>Specialty:</strong> <span>@_user.Specialty</span>
+                    </div>
+                }
+                
+                @if (_user.Role == "Operator")
+                {
+                    <div class="detail-row">
+                        <strong>Age:</strong> <span>@_user.Age</span>
+                    </div>
+                    <div class="detail-row">
+                        <strong>Shift:</strong> <span>@_user.ShiftName</span>
+                    </div>
+                }
+
+                <div class="form-actions">
+                    <button class="btn btn-primary" @onclick="StartEdit">Edit</button>
+                    @if (_user.Role != "Administrator")
+                    {
+                        <button class="btn btn-danger" @onclick="DeleteUser">Deactivate</button>
+                    }
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public Guid? UserId { get; set; }
+
+    private UserDetailDto? _user;
+    private bool _isLoading;
+    private string? _errorMessage;
+    private bool _isEditing;
+    private List<ShiftDto>? _shifts;
+
+    // Local editable model to avoid record init-only restrictions
+    private EditUserModel _editModel = new();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (UserId.HasValue && (_user == null || _user.Id != UserId.Value))
+        {
+            await LoadUserAsync(UserId.Value);
+        }
+        else if (!UserId.HasValue)
+        {
+            _user = null;
+            _isEditing = false;
+        }
+    }
+
+    private async Task LoadUserAsync(Guid id)
+    {
+        _isLoading = true;
+        _errorMessage = null;
+        _isEditing = false;
+
+        var result = await UserService.GetUserByIdAsync(id);
+        
+        if (result.IsSuccess && result.Data != null)
+        {
+            _user = result.Data;
+        }
+        else
+        {
+            _errorMessage = result.ErrorMessage ?? "Failed to load user details.";
+        }
+
+        _isLoading = false;
+    }
+
+    private async Task StartEdit()
+    {
+        if (_user == null) return;
+
+        // Load shifts FIRST if it's an operator and we haven't loaded them yet
+        if (_user.Role == "Operator" && _shifts == null)
+        {
+            var shiftResult = await CatalogService.GetShiftsAsync();
+            if (shiftResult.IsSuccess)
+            {
+                _shifts = shiftResult.Data;
+            }
+            else
+            {
+                _errorMessage = shiftResult.ErrorMessage ?? "Failed to load shifts.";
+                return; // Abort edit if shifts can't be loaded
+            }
+        }
+
+        // Prepare the edit model
+        _editModel = new EditUserModel
+        {
+            Name = _user.Name,
+            Specialty = _user.Specialty,
+            Age = _user.Age,
+            ShiftId = _user.ShiftId
+        };
+
+        // Enable edit mode
+        _isEditing = true;
+        
+        // Ensure UI updates
+        StateHasChanged();
+    }
+
+    private void CancelEdit()
+    {
+        _isEditing = false;
+    }
+
+    private async Task SaveChanges()
+    {
+        if (_user == null) return;
+
+        // Validate required fields
+        if (string.IsNullOrWhiteSpace(_editModel.Name) || 
+            (_user.Role == "Technician" && string.IsNullOrWhiteSpace(_editModel.Specialty)) ||
+            (_user.Role == "Operator" && (!_editModel.Age.HasValue || !_editModel.ShiftId.HasValue)))
+        {
+            _errorMessage = "Please fill in all required fields before saving.";
+            return;
+        }
+
+        _errorMessage = null;
+        
+        // Map local model back to the request DTO
+        var request = new IndustrialPlanGenerator.Services.Contracts.Users.UpdateUserRequest(
+            _editModel.Name,
+            _editModel.Specialty,
+            _editModel.Age,
+            _editModel.ShiftId
+        );
+
+        var result = await UserService.UpdateUserAsync(_user.Id, request);
+        
+        if (result.IsSuccess && result.Data != null)
+        {
+            _user = result.Data;
+            _isEditing = false;
+        }
+        else
+        {
+            _errorMessage = result.ErrorMessage ?? "Failed to update user.";
+        }
+    }
+
+    private async Task DeleteUser()
+    {
+        if (_user == null) return;
+
+        var result = await UserService.DeactivateUserAsync(_user.Id);
+        
+        if (result.IsSuccess)
+        {
+            _user = null;
+        }
+        else
+        {
+            _errorMessage = result.ErrorMessage ?? "Failed to deactivate user.";
+        }
+    }
+
+    /// <summary>
+    /// Local class used for editing, as the API's UpdateUserRequest is an immutable record.
+    /// </summary>
+    private class EditUserModel
+    {
+        public string Name { get; set; } = string.Empty;
+        public string? Specialty { get; set; }
+        public int? Age { get; set; }
+        public Guid? ShiftId { get; set; }
+    }
+}

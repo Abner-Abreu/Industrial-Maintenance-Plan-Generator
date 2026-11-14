@@ -31,17 +31,9 @@
                             <button class="btn" @onclick="CancelCreate">Cancel</button>
                         </div>
                     }
-                    else if (_selectedUserId.HasValue)
-                    {
-                        <div class="panel-placeholder">
-                            <p>Details for user: @_selectedUserId</p>
-                        </div>
-                    }
                     else
                     {
-                        <div class="panel-placeholder empty-state">
-                            <p>Select a user from the list to view details.</p>
-                        </div>
+                        <UserDetail UserId="_selectedUserId" />
                     }
                 </div>
 
