@@ -9,7 +9,7 @@
 
 <div class="split-layout">
     <section class="split-panel">
-        <h3>Lines</h3>
+        <h3 class="page-subtitle">Lines</h3>
 
         @if (_loadingList)
         {
@@ -30,13 +30,13 @@
                 {
                     <li>
                         <button type="button"
-                                class="line-item @(line.Id == _selectedId ? "selected" : "")"
+                                class="list-item @(line.Id == _selectedId ? "selected" : "")"
                                 @onclick="() => SelectLineAsync(line.Id)">
-                            <span class="line-info">
-                                <span class="line-name">@line.Name</span>
-                                <span class="line-process">@line.ProductiveProcess</span>
+                            <span class="list-item-content">
+                                <span class="list-item-title">@line.Name</span>
+                                <span class="list-item-subtitle">@line.ProductiveProcess</span>
                             </span>
-                            <span class="line-count" title="Systems">@line.SystemCount</span>
+                            <span class="list-item-meta" title="Systems">@line.SystemCount</span>
                         </button>
                     </li>
                 }
