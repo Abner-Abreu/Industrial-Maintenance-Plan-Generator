@@ -19,7 +19,7 @@
                 
                 <!-- Left panel: User List -->
                 <div class="admin-left-panel">
-                    <UserList OnUserSelected="OnUserSelected" />
+                    <UserList @ref="_userListRef" OnUserSelected="OnUserSelected" />
                 </div>
 
                 <!-- Right panel: User Detail or Create Form placeholder -->
@@ -33,7 +33,7 @@
                     }
                     else
                     {
-                        <UserDetail UserId="_selectedUserId" />
+                        <UserDetail UserId="_selectedUserId" OnUserUpdated="HandleUserUpdated" />
                     }
                 </div>
 
@@ -49,7 +49,10 @@
 
 @code {
     // State to track which user is selected in the list
-    private Guid? _selectedUserId;
+    private Guid? _selectedUserId; 
+    // Reference to the UserList component to call its methods directly
+    private UserList? _userListRef;
+
 
     // State to toggle between viewing details and creating a new user
     private bool _isCreating;
@@ -80,4 +83,15 @@
     {
         _isCreating = false;
     }
+    /// <summary>
+    /// Triggered when a user is updated in the detail panel. Refreshes the list on the left.
+    /// </summary>
+    private async Task HandleUserUpdated()
+    {
+        if (_userListRef != null)
+        {
+            await _userListRef.RefreshAsync();
+        }
+    }
+    
 }

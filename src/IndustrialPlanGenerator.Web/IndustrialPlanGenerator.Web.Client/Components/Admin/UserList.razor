@@ -110,4 +110,12 @@
         _selectedUserId = userId;
         await OnUserSelected.InvokeAsync(userId);
     }
+    /// <summary>
+    /// Public method to refresh the user list. Called by the parent component.
+    /// </summary>
+    public async Task RefreshAsync()
+    {
+        await LoadUsersAsync();
+        StateHasChanged();
+    }
 }

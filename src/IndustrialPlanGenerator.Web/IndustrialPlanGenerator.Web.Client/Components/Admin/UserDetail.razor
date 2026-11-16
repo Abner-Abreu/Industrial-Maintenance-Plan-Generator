@@ -60,7 +60,6 @@
                         else
                         {
                             <select class="form-control" @bind="_editModel.ShiftId">
-                                <option value="">Select a shift...</option>
                                 @foreach (var shift in _shifts)
                                 {
                                     <option value="@shift.Id">@shift.Name (@shift.Schedule)</option>
@@ -111,6 +110,8 @@
 @code {
     [Parameter]
     public Guid? UserId { get; set; }
+    [Parameter]
+    public EventCallback OnUserUpdated { get; set; }
 
     private UserDetailDto? _user;
     private bool _isLoading;
@@ -223,6 +224,7 @@
         {
             _user = result.Data;
             _isEditing = false;
+            await OnUserUpdated.InvokeAsync();
         }
         else
         {
