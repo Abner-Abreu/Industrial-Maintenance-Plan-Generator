@@ -6,6 +6,7 @@ namespace IndustrialPlanGenerator.Web.Client.Services.LinesManagementService;
 /// <summary>
 /// In-memory placeholder for ILinesManagementService, used while the backend services are not implemented.
 /// It does not touch the network or the JWT. Remove its registration once the real API is available.
+/// Changes are kept in memory only and are lost on page reload.
 /// </summary>
 public sealed class FakeLinesManagementService : ILinesManagementService
 {
@@ -27,7 +28,7 @@ public sealed class FakeLinesManagementService : ILinesManagementService
             new(Id(201), "Mezcladora principal", "Mezcla los ingredientes base.", "Operational"),
             new(Id(202), "Bomba de trasvase", "Traslada la mezcla al tanque de reposo.", "Operational")
         }),
-        // A line without systems, to exercise the empty state.
+        // A line without systems, to exercise the empty state and to be deletable.
         new(Id(3), "Línea de pruebas", "Control de calidad", new List<EquipmentSystemDto>())
     ];
 
@@ -47,7 +48,84 @@ public sealed class FakeLinesManagementService : ILinesManagementService
 
         // Mimics the real API contract: 404 when the line does not exist.
         return _lines.FirstOrDefault(line => line.Id == id)
-               ?? throw new HttpRequestException($"Line {id} not found.", null, HttpStatusCode.NotFound);
+               ?? throw NotFound(id);
+    }
+
+    /// <inheritdoc />
+    public async Task<LineDetailDto> CreateLineAsync(CreateLineRequest request, CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        await Task.Delay(Latency, ct);
+
+        // Mimics the real API contract: 400 when the request is invalid.
+        EnsureValid(request.Name, request.ProductiveProcess);
+
+        var created = new LineDetailDto(
+            Guid.NewGuid(),
+            request.Name.Trim(),
+            request.ProductiveProcess.Trim(),
+            new List<EquipmentSystemDto>());
+
+        _lines.Add(created);
+        return created;
+    }
+
+    /// <inheritdoc />
+    public async Task<LineDetailDto> UpdateLineAsync(Guid id, UpdateLineRequest request, CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        await Task.Delay(Latency, ct);
+
+        // Mimics the real API contract: 404 when the line does not exist, 400 when the request is invalid.
+        var index = _lines.FindIndex(line => line.Id == id);
+        if (index < 0)
+        {
+            throw NotFound(id);
+        }
+
+        EnsureValid(request.Name, request.ProductiveProcess);
+
+        // Systems are untouched by this operation.
+        var updated = _lines[index] with
+        {
+            Name = request.Name.Trim(),
+            ProductiveProcess = request.ProductiveProcess.Trim()
+        };
+
+        _lines[index] = updated;
+        return updated;
+    }
+
+    /// <inheritdoc />
+    public async Task DeleteLineAsync(Guid id, CancellationToken ct = default)
+    {
+        await Task.Delay(Latency, ct);
+
+        // Mimics the real API contract: 404 when the line does not exist.
+        var line = _lines.FirstOrDefault(l => l.Id == id) ?? throw NotFound(id);
+
+        // 409 when the line still has systems (the fake has no plans or assignments).
+        if (line.Systems.Count > 0)
+        {
+            throw new HttpRequestException(
+                $"Line {id} has systems and cannot be deleted.", null, HttpStatusCode.Conflict);
+        }
+
+        _lines.Remove(line);
+    }
+
+    private static HttpRequestException NotFound(Guid id)
+        => new($"Line {id} not found.", null, HttpStatusCode.NotFound);
+
+    private static void EnsureValid(string? name, string? productiveProcess)
+    {
+        if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(productiveProcess))
+        {
+            throw new HttpRequestException(
+                "Name and productive process are required.", null, HttpStatusCode.BadRequest);
+        }
     }
 
     // Deterministic IDs so the sample data is stable between runs.
