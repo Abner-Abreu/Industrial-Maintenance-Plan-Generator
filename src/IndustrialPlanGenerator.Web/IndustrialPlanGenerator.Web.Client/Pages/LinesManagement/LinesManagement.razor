@@ -59,7 +59,27 @@
         }
         else if (_detail is not null)
         {
-            <h3>@_detail.Name</h3>
+            <form class="name-form" @onsubmit="SaveNameAsync">
+                <input class="form-control"
+                       type="text"
+                       aria-label="Line name"
+                       maxlength="100"
+                       disabled="@_saving"
+                       @bind="_editName"
+                       @bind:event="oninput"/>
+                @if (HasChanges)
+                {
+                    <button type="submit" class="action-button" disabled="@(!CanSave)">
+                        @(_saving ? "Saving..." : "Save")
+                    </button>
+                }
+            </form>
+
+            @if (_saveError is not null)
+            {
+                <p class="error name-form-error">@_saveError</p>
+            }
+
             <p class="detail-process">@_detail.ProductiveProcess</p>
 
             <h4>Systems</h4>
@@ -89,7 +109,7 @@
 @code {
     private readonly CancellationTokenSource _cts = new();
 
-    private IReadOnlyList<LineSummaryDto> _lines = Array.Empty<LineSummaryDto>();
+    private List<LineSummaryDto> _lines = [];
     private bool _loadingList = true;
     private string? _listError;
 
@@ -98,11 +118,24 @@
     private bool _loadingDetail;
     private string? _detailError;
 
+    // Name editing state.
+    private string _editName = string.Empty;
+    private bool _saving;
+    private string? _saveError;
+
+    // True when the text in the input differs from the saved name.
+    private bool HasChanges =>
+        _detail is not null && _editName.Trim() != _detail.Name;
+
+    // A change can only be saved if it is not blank and no save is in progress.
+    private bool CanSave =>
+        !_saving && HasChanges && !string.IsNullOrWhiteSpace(_editName);
+
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            _lines = await LinesService.LoadLinesAsync(_cts.Token);
+            _lines = [.. await LinesService.LoadLinesAsync(_cts.Token)];
         }
         catch (OperationCanceledException)
         {
@@ -123,6 +156,8 @@
         _selectedId = id;
         _detail = null;
         _detailError = null;
+        _saveError = null;
+        _saving = false;
         _loadingDetail = true;
 
         try
@@ -133,6 +168,7 @@
             if (_selectedId == id)
             {
                 _detail = detail;
+                _editName = detail.Name;
             }
         }
         catch (OperationCanceledException)
@@ -151,6 +187,58 @@
             if (_selectedId == id)
             {
                 _loadingDetail = false;
+            }
+        }
+    }
+
+    private async Task SaveNameAsync()
+    {
+        if (!CanSave || _detail is null)
+        {
+            return;
+        }
+
+        var id = _detail.Id;
+        var newName = _editName.Trim();
+
+        _saving = true;
+        _saveError = null;
+
+        try
+        {
+            // Only the name changes; the productive process is sent back as it is.
+            var request = new UpdateLineRequest(newName, _detail.ProductiveProcess);
+            var updated = await LinesService.UpdateLineAsync(id, request, _cts.Token);
+
+            // Keep the list in sync, even if the user has selected another line meanwhile.
+            var index = _lines.FindIndex(l => l.Id == id);
+            if (index >= 0)
+            {
+                _lines[index] = _lines[index] with { Name = updated.Name };
+            }
+
+            if (_selectedId == id)
+            {
+                _detail = updated;
+                _editName = updated.Name;
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            return;
+        }
+        catch (Exception)
+        {
+            if (_selectedId == id)
+            {
+                _saveError = "Could not save the name.";
+            }
+        }
+        finally
+        {
+            if (_selectedId == id)
+            {
+                _saving = false;
             }
         }
     }

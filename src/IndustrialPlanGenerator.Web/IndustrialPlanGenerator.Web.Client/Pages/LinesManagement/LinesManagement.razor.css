@@ -5,6 +5,29 @@
     margin-top: 0;
 }
 
+/* Row with the name input on the left and the save button on the right. */
+.name-form {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0 0 1rem;
+}
+
+/* Compact input: it does not stretch to fill the row. */
+.name-form input {
+    flex: 0 1 18rem;
+    min-width: 0;
+}
+
+/* The auto left margin works as a spacer: it pushes the button to the end of the row. */
+.name-form .action-button {
+    margin-left: auto;
+}
+
+.name-form-error {
+    margin-top: 0;
+}
+
 .system-item {
     padding: 0.625rem 0;
     border-top: 1px solid var(--color-border);

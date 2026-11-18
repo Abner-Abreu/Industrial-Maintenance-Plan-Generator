@@ -201,6 +201,35 @@ a:hover {
     margin-left: 0.5rem;
 }
 
+/*
+ * Solid action button (reusable pattern).
+ * Accent background, secondary text color and the same radius as form controls.
+ * Recommended markup:
+ *   <button type="submit" class="action-button">Save</button>
+ */
+.action-button {
+    padding: 0.5rem 1rem;
+    border: 0;
+    border-radius: 0.5rem;
+    background-color: var(--color-accent);
+    font: var(--font-body);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    line-height: 1.5;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.action-button:hover:not(:disabled) {
+    background-color: var(--color-accent-hover);
+}
+
+.action-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
 /* --------------------------------------------------------------------- */
 /* ---- END ---- */
 /* --------------------------------------------------------------------- */
