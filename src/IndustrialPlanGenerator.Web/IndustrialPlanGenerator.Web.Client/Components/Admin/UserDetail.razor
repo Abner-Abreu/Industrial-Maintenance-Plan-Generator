@@ -1,6 +1,7 @@
+@using IndustrialPlanGenerator.Services.Contracts.Lines
 @inject UserService UserService
 @inject CatalogService CatalogService
-@using IndustrialPlanGenerator.Services.Contracts.Catalogs
+@inject LineService LineService
 
 <div class="user-detail-container">
     @if (_isLoading)
@@ -94,7 +95,72 @@
                         <strong>Shift:</strong> <span>@_user.ShiftName</span>
                     </div>
                 }
+                
+                                <!-- Assigned Lines (Read Mode) -->
+                @if (_user.Role == "Operator")
+                {
+                    <div class="detail-row lines-row">
+                        <strong>Assigned Lines:</strong> 
+                        <div class="lines-badges">
+                            @if (_user.Lines == null || !_user.Lines.Any())
+                            {
+                                <span class="text-muted">None</span>
+                            }
+                            else
+                            {
+                                @foreach (var line in _user.Lines)
+                                {
+                                    <span class="line-badge">@GetLineName(line.LineId)</span>
+                                }
+                            }
+                        </div>
+                    </div>
+                }
+                else if (_user.Role == "Technician")
+                {
+                    <!-- Validation Lines -->
+                    <div class="detail-row lines-row">
+                        <strong>Validation Lines:</strong> 
+                        <div class="lines-badges">
+                            @{
+                                var validateLines = _user.Lines?.Where(l => l.Permission == "Validate").ToList();
+                            }
+                            @if (validateLines == null || !validateLines.Any())
+                            {
+                                <span class="text-muted">None</span>
+                            }
+                            else
+                            {
+                                @foreach (var line in validateLines)
+                                {
+                                    <span class="line-badge">@GetLineName(line.LineId)</span>
+                                }
+                            }
+                        </div>
+                    </div>
 
+                    <!-- Generation Lines -->
+                    <div class="detail-row lines-row">
+                        <strong>Generation Lines:</strong> 
+                        <div class="lines-badges">
+                            @{
+                                var generateLines = _user.Lines?.Where(l => l.Permission == "Generate").ToList();
+                            }
+                            @if (generateLines == null || !generateLines.Any())
+                            {
+                                <span class="text-muted">None</span>
+                            }
+                            else
+                            {
+                                @foreach (var line in generateLines)
+                                {
+                                    <span class="line-badge">@GetLineName(line.LineId)</span>
+                                }
+                            }
+                        </div>
+                    </div>
+                }
+                
                 <div class="form-actions">
                     <button class="btn btn-primary" @onclick="StartEdit">Edit</button>
                     @if (_user.Role != "Administrator")
@@ -113,6 +179,7 @@
     [Parameter]
     public EventCallback OnUserUpdated { get; set; }
 
+    private List<LineSummaryDto>? _allLines;
     private UserDetailDto? _user;
     private bool _isLoading;
     private string? _errorMessage;
@@ -124,6 +191,8 @@
 
     protected override async Task OnParametersSetAsync()
     {
+        await LoadAllLinesAsync();
+        
         if (UserId.HasValue && (_user == null || _user.Id != UserId.Value))
         {
             await LoadUserAsync(UserId.Value);
@@ -257,5 +326,26 @@
         public string? Specialty { get; set; }
         public int? Age { get; set; }
         public Guid? ShiftId { get; set; }
+    }
+    
+    /// <summary>
+    /// Gets the name of a line given its ID.
+    /// </summary>
+    private string GetLineName(Guid lineId)
+    {
+        return _allLines?.FirstOrDefault(l => l.Id == lineId)?.Name ?? "Unknown Line";
+    }
+    /// <summary>
+    /// Loads all production lines from the API.
+    /// </summary>
+    private async Task LoadAllLinesAsync()
+    {
+        if (_allLines != null) return;
+        
+        var result = await LineService.GetLinesAsync();
+        if (result.IsSuccess)
+        {
+            _allLines = result.Data;
+        }
     }
 }

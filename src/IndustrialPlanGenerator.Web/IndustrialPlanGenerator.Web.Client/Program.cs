@@ -26,5 +26,6 @@ builder.Services.AddScoped<AuthService>();
 
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<CatalogService>();
+builder.Services.AddScoped<LineService>();
 
 await builder.Build().RunAsync();
