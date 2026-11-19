@@ -48,6 +48,22 @@
     margin: 0;
 }
 
+.systems-header-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* Form to add a new system, shown above the list. */
+.system-create {
+    margin-bottom: 0.75rem;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
 /* Editable name and description of a system. */
 .system-edit {
     display: flex;

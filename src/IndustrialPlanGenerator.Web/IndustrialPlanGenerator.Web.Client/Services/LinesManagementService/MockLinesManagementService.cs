@@ -125,6 +125,38 @@ public sealed class FakeLinesManagementService : ILinesManagementService
     }
 
     /// <inheritdoc />
+    public async Task<EquipmentSystemDto> CreateSystemAsync(CreateSystemRequest request, CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        await Task.Delay(Latency, ct);
+
+        // Mimics the real API contract: 404 when the line does not exist, 400 when the request is invalid.
+        var lineIndex = _lines.FindIndex(line => line.Id == request.LineId);
+        if (lineIndex < 0)
+        {
+            throw NotFound(request.LineId);
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Name))
+        {
+            throw new HttpRequestException("Name is required.", null, HttpStatusCode.BadRequest);
+        }
+
+        // The initial operative state is assigned by the server.
+        var created = new EquipmentSystemDto(
+            Guid.NewGuid(),
+            request.Name.Trim(),
+            request.Description?.Trim() ?? string.Empty,
+            "Operational");
+
+        var line = _lines[lineIndex];
+        _lines[lineIndex] = line with { Systems = [.. line.Systems, created] };
+
+        return created;
+    }
+
+    /// <inheritdoc />
     public async Task<EquipmentSystemDto> UpdateSystemAsync(
         Guid systemId, UpdateSystemRequest request, CancellationToken ct = default)
     {

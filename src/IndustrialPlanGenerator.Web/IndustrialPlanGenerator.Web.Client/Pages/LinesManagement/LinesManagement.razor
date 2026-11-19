@@ -32,7 +32,7 @@
                     <li>
                         <button type="button"
                                 class="list-item @(line.Id == _selectedId ? "selected" : "")"
-                                disabled="@(_saving || _deletingSystem)"
+                                disabled="@Busy"
                                 @onclick="() => SelectLineAsync(line.Id)">
                             <span class="list-item-content">
                                 <span class="list-item-title">@line.Name</span>
@@ -87,20 +87,72 @@
             <div class="systems-header">
                 <h4>Systems</h4>
 
-                @if (_detail.Systems.Count > 0)
-                {
-                    <button type="button"
-                            class="action-button secondary"
-                            disabled="@(_saving || _deletingSystem)"
-                            @onclick="ToggleSystemsEditing">
-                        @(_editingSystems ? "Cancel" : "Edit")
-                    </button>
-                }
+                <span class="systems-header-actions">
+                    @if (!_addingSystem && !_editingSystems)
+                    {
+                        <button type="button"
+                                class="action-button secondary"
+                                disabled="@Busy"
+                                @onclick="StartAddingSystem">
+                            Add system
+                        </button>
+                    }
+
+                    @if (_detail.Systems.Count > 0)
+                    {
+                        <button type="button"
+                                class="action-button secondary"
+                                disabled="@(Busy || _addingSystem)"
+                                @onclick="ToggleSystemsEditing">
+                            @(_editingSystems ? "Cancel" : "Edit")
+                        </button>
+                    }
+                </span>
             </div>
 
             @if (_systemError is not null)
             {
                 <p class="error">@_systemError</p>
+            }
+
+            @if (_addingSystem)
+            {
+                <form class="system-edit system-create" @onsubmit="CreateSystemAsync">
+                    <input class="form-control"
+                           type="text"
+                           placeholder="System name"
+                           aria-label="New system name"
+                           maxlength="100"
+                           disabled="@_creatingSystem"
+                           @bind="_newSystemName"
+                           @bind:event="oninput"/>
+                    <textarea class="form-control"
+                              placeholder="Description"
+                              aria-label="New system description"
+                              rows="2"
+                              disabled="@_creatingSystem"
+                              @bind="_newSystemDescription"
+                              @bind:event="oninput"></textarea>
+
+                    @if (_createSystemError is not null)
+                    {
+                        <p class="error">@_createSystemError</p>
+                    }
+
+                    <div class="form-actions">
+                        <button type="button"
+                                class="action-button secondary"
+                                disabled="@_creatingSystem"
+                                @onclick="StopAddingSystem">
+                            Cancel
+                        </button>
+                        <button type="submit"
+                                class="action-button"
+                                disabled="@(_creatingSystem || string.IsNullOrWhiteSpace(_newSystemName))">
+                            @(_creatingSystem ? "Adding..." : "Add")
+                        </button>
+                    </div>
+                </form>
             }
 
             @if (_detail.Systems.Count == 0)
@@ -141,7 +193,7 @@
                                                 class="icon-button danger"
                                                 title="Delete system"
                                                 aria-label="Delete @system.Name"
-                                                disabled="@(_deletingSystem || _saving)"
+                                                disabled="@Busy"
                                                 @onclick="() => DeleteSystemAsync(system.Id)">
                                             <!-- Lucide "x" icon -->
                                             <svg xmlns="http://www.w3.org/2000/svg"
@@ -223,6 +275,13 @@
         public string Description { get; set; } = string.Empty;
     }
 
+    // System creation state.
+    private bool _addingSystem;
+    private bool _creatingSystem;
+    private string _newSystemName = string.Empty;
+    private string _newSystemDescription = string.Empty;
+    private string? _createSystemError;
+
     // System deletion state.
     private bool _deletingSystem;
     private string? _systemError;
@@ -231,6 +290,9 @@
     private bool _confirmingDelete;
     private bool _deleting;
     private string? _deleteError;
+
+    // True while any operation that changes the details is running.
+    private bool Busy => _saving || _deletingSystem || _creatingSystem;
 
     // True when any system draft differs from the saved system.
     private bool HasSystemChanges =>
@@ -248,8 +310,7 @@
 
     // The global save needs at least one change, valid values, and no operation in progress.
     private bool CanSave =>
-        !_saving
-        && !_deletingSystem
+        !Busy
         && HasChanges
         && !string.IsNullOrWhiteSpace(_editName)
         && DraftsAreValid;
@@ -285,6 +346,8 @@
         _saveError = null;
         _saving = false;
         StopEditingSystems();
+        StopAddingSystem();
+        _creatingSystem = false;
         _deletingSystem = false;
         _systemError = null;
         _deleteError = null;
@@ -426,10 +489,77 @@
         };
     }
 
+    private void StartAddingSystem()
+    {
+        _newSystemName = string.Empty;
+        _newSystemDescription = string.Empty;
+        _createSystemError = null;
+        _systemError = null;
+        _addingSystem = true;
+    }
+
+    private void StopAddingSystem()
+    {
+        _addingSystem = false;
+        _newSystemName = string.Empty;
+        _newSystemDescription = string.Empty;
+        _createSystemError = null;
+    }
+
+    // Creates a system in the selected line through the systems API and adds it to the local list.
+    private async Task CreateSystemAsync()
+    {
+        if (_detail is null || Busy || string.IsNullOrWhiteSpace(_newSystemName))
+        {
+            return;
+        }
+
+        var lineId = _detail.Id;
+
+        _creatingSystem = true;
+        _createSystemError = null;
+
+        try
+        {
+            var request = new CreateSystemRequest(lineId, _newSystemName.Trim(), _newSystemDescription.Trim());
+            var created = await LinesService.CreateSystemAsync(request, _cts.Token);
+
+            AddSystemToLine(lineId, created);
+            StopAddingSystem();
+        }
+        catch (OperationCanceledException)
+        {
+            return;
+        }
+        catch (Exception)
+        {
+            _createSystemError = "Could not add the system.";
+        }
+        finally
+        {
+            _creatingSystem = false;
+        }
+    }
+
+    // Adds a system to the detail panel (if that line is still selected) and updates the list counter.
+    private void AddSystemToLine(Guid lineId, EquipmentSystemDto created)
+    {
+        if (_selectedId == lineId && _detail is not null)
+        {
+            _detail = _detail with { Systems = [.. _detail.Systems, created] };
+        }
+
+        var index = _lines.FindIndex(l => l.Id == lineId);
+        if (index >= 0)
+        {
+            _lines[index] = _lines[index] with { SystemCount = _lines[index].SystemCount + 1 };
+        }
+    }
+
     // Deletes a system through the systems API and, if it succeeds, removes it from the local list.
     private async Task DeleteSystemAsync(Guid systemId)
     {
-        if (_detail is null || _deletingSystem || _saving)
+        if (_detail is null || Busy)
         {
             return;
         }
@@ -577,6 +707,7 @@
             _saveError = null;
             _deleteError = null;
             StopEditingSystems();
+            StopAddingSystem();
         }
     }
 

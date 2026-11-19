@@ -37,6 +37,14 @@ public interface ILinesManagementService
     Task<DeleteResult> DeleteLineAsync(Guid id, CancellationToken ct = default);
 
     /// <summary>
+    /// Creates a system in a line through the systems API (SIS-2). Administrator only.
+    /// The initial operative state is assigned by the server.
+    /// Throws <see cref="HttpRequestException"/> with 400 when the request is invalid, or 404 when the line does not exist.
+    /// </summary>
+    /// <returns>The newly created system.</returns>
+    Task<EquipmentSystemDto> CreateSystemAsync(CreateSystemRequest request, CancellationToken ct = default);
+
+    /// <summary>
     /// Edits the name and description of a system through the systems API (SIS-3). Administrator only.
     /// The operative state and the line are not changed.
     /// Throws <see cref="HttpRequestException"/> with 400 when the request is invalid, or 404 when the system does not exist.
