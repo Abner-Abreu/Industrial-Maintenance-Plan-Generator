@@ -102,9 +102,39 @@
                     }
                 </ul>
             }
+
+            <div class="detail-actions">
+                <button type="button" class="action-button danger" @onclick="ShowDeleteConfirmation">
+                    Delete line
+                </button>
+
+                @if (_deleteError is not null)
+                {
+                    <p class="error">@_deleteError</p>
+                }
+            </div>
         }
     </section>
 </div>
+
+@if (_confirmingDelete && _detail is not null)
+{
+    <div class="confirm-overlay">
+        <div class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="delete-dialog-title">
+            <h4 id="delete-dialog-title">Delete line</h4>
+            <p>Are you sure you want to delete <strong>@_detail.Name</strong>? This action cannot be undone.</p>
+
+            <div class="confirm-actions">
+                <button type="button" class="action-button secondary" disabled="@_deleting" @onclick="CancelDelete">
+                    Cancel
+                </button>
+                <button type="button" class="action-button danger" disabled="@_deleting" @onclick="DeleteLineAsync">
+                    @(_deleting ? "Deleting..." : "Delete")
+                </button>
+            </div>
+        </div>
+    </div>
+}
 
 @code {
     private readonly CancellationTokenSource _cts = new();
@@ -122,6 +152,11 @@
     private string _editName = string.Empty;
     private bool _saving;
     private string? _saveError;
+
+    // Line deletion state.
+    private bool _confirmingDelete;
+    private bool _deleting;
+    private string? _deleteError;
 
     // True when the text in the input differs from the saved name.
     private bool HasChanges =>
@@ -158,6 +193,8 @@
         _detailError = null;
         _saveError = null;
         _saving = false;
+        _deleteError = null;
+        _confirmingDelete = false;
         _loadingDetail = true;
 
         try
@@ -240,6 +277,78 @@
             {
                 _saving = false;
             }
+        }
+    }
+
+    private void ShowDeleteConfirmation()
+    {
+        _deleteError = null;
+        _confirmingDelete = true;
+    }
+
+    private void CancelDelete()
+    {
+        if (!_deleting)
+        {
+            _confirmingDelete = false;
+        }
+    }
+
+    private async Task DeleteLineAsync()
+    {
+        if (_detail is null || _deleting)
+        {
+            return;
+        }
+
+        var id = _detail.Id;
+
+        _deleting = true;
+        _deleteError = null;
+
+        try
+        {
+            var result = await LinesService.DeleteLineAsync(id, _cts.Token);
+
+            switch (result)
+            {
+                case DeleteLineResult.Deleted:
+                case DeleteLineResult.NotFound: // Already deleted elsewhere: the goal is reached.
+                    RemoveLine(id);
+                    break;
+
+                case DeleteLineResult.HasDependencies:
+                    _deleteError = "This line cannot be deleted because it still has associated systems, plans, or assignments.";
+                    break;
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            return;
+        }
+        catch (Exception)
+        {
+            _deleteError = "Could not delete the line.";
+        }
+        finally
+        {
+            _deleting = false;
+            _confirmingDelete = false;
+        }
+    }
+
+    // Removes a line from the list and clears the detail panel if that line was selected.
+    private void RemoveLine(Guid id)
+    {
+        _lines.RemoveAll(l => l.Id == id);
+
+        if (_selectedId == id)
+        {
+            _selectedId = null;
+            _detail = null;
+            _editName = string.Empty;
+            _saveError = null;
+            _deleteError = null;
         }
     }
 

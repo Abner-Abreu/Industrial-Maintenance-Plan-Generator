@@ -99,21 +99,25 @@ public sealed class FakeLinesManagementService : ILinesManagementService
     }
 
     /// <inheritdoc />
-    public async Task DeleteLineAsync(Guid id, CancellationToken ct = default)
+    public async Task<DeleteLineResult> DeleteLineAsync(Guid id, CancellationToken ct = default)
     {
         await Task.Delay(Latency, ct);
 
-        // Mimics the real API contract: 404 when the line does not exist.
-        var line = _lines.FirstOrDefault(l => l.Id == id) ?? throw NotFound(id);
+        // Mimics the real service: the API's 404 and 409 are reported as results.
+        var line = _lines.FirstOrDefault(l => l.Id == id);
+        if (line is null)
+        {
+            return DeleteLineResult.NotFound;
+        }
 
-        // 409 when the line still has systems (the fake has no plans or assignments).
+        // The fake has no plans or assignments, only systems.
         if (line.Systems.Count > 0)
         {
-            throw new HttpRequestException(
-                $"Line {id} has systems and cannot be deleted.", null, HttpStatusCode.Conflict);
+            return DeleteLineResult.HasDependencies;
         }
 
         _lines.Remove(line);
+        return DeleteLineResult.Deleted;
     }
 
     private static HttpRequestException NotFound(Guid id)
