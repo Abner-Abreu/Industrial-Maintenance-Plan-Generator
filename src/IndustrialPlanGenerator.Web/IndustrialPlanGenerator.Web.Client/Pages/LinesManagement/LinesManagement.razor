@@ -1,6 +1,7 @@
 @page "/lines"
 @attribute [Authorize(Roles = "Administrator")]
 @using IndustrialPlanGenerator.Services.Contracts.Lines
+@using IndustrialPlanGenerator.Services.Contracts.Systems
 @using IndustrialPlanGenerator.Web.Client.Services.LinesManagementService
 @implements IDisposable
 @inject ILinesManagementService LinesService
@@ -31,6 +32,7 @@
                     <li>
                         <button type="button"
                                 class="list-item @(line.Id == _selectedId ? "selected" : "")"
+                                disabled="@(_saving || _deletingSystem)"
                                 @onclick="() => SelectLineAsync(line.Id)">
                             <span class="list-item-content">
                                 <span class="list-item-title">@line.Name</span>
@@ -59,7 +61,7 @@
         }
         else if (_detail is not null)
         {
-            <form class="name-form" @onsubmit="SaveNameAsync">
+            <form class="name-form" @onsubmit="SaveChangesAsync">
                 <input class="form-control"
                        type="text"
                        aria-label="Line name"
@@ -82,7 +84,19 @@
 
             <p class="detail-process">@_detail.ProductiveProcess</p>
 
-            <h4>Systems</h4>
+            <div class="systems-header">
+                <h4>Systems</h4>
+
+                @if (_detail.Systems.Count > 0)
+                {
+                    <button type="button"
+                            class="action-button secondary"
+                            disabled="@(_saving || _deletingSystem)"
+                            @onclick="ToggleSystemsEditing">
+                        @(_editingSystems ? "Cancel" : "Edit")
+                    </button>
+                }
+            </div>
 
             @if (_systemError is not null)
             {
@@ -99,31 +113,53 @@
                     @foreach (var system in _detail.Systems)
                     {
                         <li class="system-item">
-                            <div class="system-header">
-                                <span class="system-name">@system.Name</span>
-                                <span class="system-actions">
-                                    <span class="system-state">@system.OperativeState</span>
-                                    <button type="button"
-                                            class="icon-button danger"
-                                            title="Delete system"
-                                            aria-label="Delete @system.Name"
-                                            disabled="@(_deletingSystem || _saving)"
-                                            @onclick="() => DeleteSystemAsync(system.Id)">
-                                        <svg xmlns="http://www.w3.org/2000/svg"
-                                             viewBox="0 0 24 24"
-                                             fill="none"
-                                             stroke="currentColor"
-                                             stroke-width="2"
-                                             stroke-linecap="round"
-                                             stroke-linejoin="round"
-                                             aria-hidden="true">
-                                            <path d="M18 6 6 18"/>
-                                            <path d="m6 6 12 12"/>
-                                        </svg>
-                                    </button>
-                                </span>
-                            </div>
-                            <p class="system-description">@system.Description</p>
+                            @if (_editingSystems && _drafts.TryGetValue(system.Id, out var draft))
+                            {
+                                <div class="system-edit">
+                                    <input class="form-control"
+                                           type="text"
+                                           aria-label="System name"
+                                           maxlength="100"
+                                           disabled="@_saving"
+                                           @bind="draft.Name"
+                                           @bind:event="oninput"/>
+                                    <textarea class="form-control"
+                                              aria-label="System description"
+                                              rows="2"
+                                              disabled="@_saving"
+                                              @bind="draft.Description"
+                                              @bind:event="oninput"></textarea>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="system-header">
+                                    <span class="system-name">@system.Name</span>
+                                    <span class="system-actions">
+                                        <span class="system-state">@system.OperativeState</span>
+                                        <button type="button"
+                                                class="icon-button danger"
+                                                title="Delete system"
+                                                aria-label="Delete @system.Name"
+                                                disabled="@(_deletingSystem || _saving)"
+                                                @onclick="() => DeleteSystemAsync(system.Id)">
+                                            <!-- Lucide "x" icon -->
+                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                 viewBox="0 0 24 24"
+                                                 fill="none"
+                                                 stroke="currentColor"
+                                                 stroke-width="2"
+                                                 stroke-linecap="round"
+                                                 stroke-linejoin="round"
+                                                 aria-hidden="true">
+                                                <path d="M18 6 6 18"/>
+                                                <path d="m6 6 12 12"/>
+                                            </svg>
+                                        </button>
+                                    </span>
+                                </div>
+                                <p class="system-description">@system.Description</p>
+                            }
                         </li>
                     }
                 </ul>
@@ -174,10 +210,18 @@
     private bool _loadingDetail;
     private string? _detailError;
 
-    // Name editing state.
+    // Editing state: the line name, plus an editable draft for each system while in edit mode.
     private string _editName = string.Empty;
     private bool _saving;
     private string? _saveError;
+    private bool _editingSystems;
+    private readonly Dictionary<Guid, SystemDraft> _drafts = [];
+
+    private sealed class SystemDraft
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+    }
 
     // System deletion state.
     private bool _deletingSystem;
@@ -188,13 +232,30 @@
     private bool _deleting;
     private string? _deleteError;
 
-    // True when the text in the input differs from the saved name.
-    private bool HasChanges =>
-        _detail is not null && _editName.Trim() != _detail.Name;
+    // True when any system draft differs from the saved system.
+    private bool HasSystemChanges =>
+        _editingSystems
+        && _detail is not null
+        && _detail.Systems.Any(s => _drafts.TryGetValue(s.Id, out var draft) && IsChanged(s, draft));
 
-    // A change can only be saved if it is not blank and no save is in progress.
+    // True when anything in the details differs from what is saved: the line name or any system.
+    private bool HasChanges =>
+        _detail is not null && (_editName.Trim() != _detail.Name || HasSystemChanges);
+
+    // System names cannot be blank.
+    private bool DraftsAreValid =>
+        !_editingSystems || _drafts.Values.All(d => !string.IsNullOrWhiteSpace(d.Name));
+
+    // The global save needs at least one change, valid values, and no operation in progress.
     private bool CanSave =>
-        !_saving && !_deletingSystem && HasChanges && !string.IsNullOrWhiteSpace(_editName);
+        !_saving
+        && !_deletingSystem
+        && HasChanges
+        && !string.IsNullOrWhiteSpace(_editName)
+        && DraftsAreValid;
+
+    private static bool IsChanged(EquipmentSystemDto system, SystemDraft draft) =>
+        draft.Name.Trim() != system.Name || draft.Description.Trim() != system.Description;
 
     protected override async Task OnInitializedAsync()
     {
@@ -223,6 +284,7 @@
         _detailError = null;
         _saveError = null;
         _saving = false;
+        StopEditingSystems();
         _deletingSystem = false;
         _systemError = null;
         _deleteError = null;
@@ -260,7 +322,8 @@
         }
     }
 
-    private async Task SaveNameAsync()
+    // Global save: persists the line name (if changed) and every edited system.
+    private async Task SaveChangesAsync()
     {
         if (!CanSave || _detail is null)
         {
@@ -268,24 +331,41 @@
         }
 
         var id = _detail.Id;
-        var newName = _editName.Trim();
 
         _saving = true;
         _saveError = null;
 
         try
         {
-            // Only the name changes; the productive process is sent back as it is.
-            var request = new UpdateLineRequest(newName, _detail.ProductiveProcess);
-            var updated = await LinesService.UpdateLineAsync(id, request, _cts.Token);
-
-            // Keep the list in sync, even if the user has selected another line meanwhile.
-            UpdateListItem(updated);
-
-            if (_selectedId == id)
+            // 1. Line name. Only the name changes; the productive process is sent back as it is.
+            if (_editName.Trim() != _detail.Name)
             {
+                var request = new UpdateLineRequest(_editName.Trim(), _detail.ProductiveProcess);
+                var updated = await LinesService.UpdateLineAsync(id, request, _cts.Token);
+
+                UpdateListItem(updated);
                 _detail = updated;
                 _editName = updated.Name;
+            }
+
+            // 2. Edited systems, one request each. Each saved system is applied to the details right away,
+            //    so if one fails, the ones already saved are not lost and the rest can be retried.
+            if (_editingSystems)
+            {
+                foreach (var system in _detail.Systems.ToList())
+                {
+                    if (!_drafts.TryGetValue(system.Id, out var draft) || !IsChanged(system, draft))
+                    {
+                        continue;
+                    }
+
+                    var request = new UpdateSystemRequest(draft.Name.Trim(), draft.Description.Trim());
+                    var updatedSystem = await LinesService.UpdateSystemAsync(system.Id, request, _cts.Token);
+
+                    ReplaceSystem(updatedSystem);
+                }
+
+                StopEditingSystems();
             }
         }
         catch (OperationCanceledException)
@@ -294,18 +374,56 @@
         }
         catch (Exception)
         {
-            if (_selectedId == id)
-            {
-                _saveError = "Could not save the name.";
-            }
+            _saveError = "Could not save the changes.";
         }
         finally
         {
-            if (_selectedId == id)
-            {
-                _saving = false;
-            }
+            _saving = false;
         }
+    }
+
+    private void ToggleSystemsEditing()
+    {
+        if (_editingSystems)
+        {
+            StopEditingSystems();
+            return;
+        }
+
+        if (_detail is null)
+        {
+            return;
+        }
+
+        _systemError = null;
+        _drafts.Clear();
+
+        foreach (var system in _detail.Systems)
+        {
+            _drafts[system.Id] = new SystemDraft { Name = system.Name, Description = system.Description };
+        }
+
+        _editingSystems = true;
+    }
+
+    private void StopEditingSystems()
+    {
+        _editingSystems = false;
+        _drafts.Clear();
+    }
+
+    // Replaces a system in the detail panel with its saved version.
+    private void ReplaceSystem(EquipmentSystemDto updated)
+    {
+        if (_detail is null)
+        {
+            return;
+        }
+
+        _detail = _detail with
+        {
+            Systems = [.. _detail.Systems.Select(s => s.Id == updated.Id ? updated : s)]
+        };
     }
 
     // Deletes a system through the systems API and, if it succeeds, removes it from the local list.
@@ -458,6 +576,7 @@
             _editName = string.Empty;
             _saveError = null;
             _deleteError = null;
+            StopEditingSystems();
         }
     }
 
