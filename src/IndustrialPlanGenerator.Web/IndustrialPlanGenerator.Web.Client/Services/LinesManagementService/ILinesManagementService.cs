@@ -30,21 +30,28 @@ public interface ILinesManagementService
 
     /// <summary>
     /// Deletes a line (LIN-5). Administrator only.
-    /// Expected outcomes (not found, still has dependencies) are reported through <see cref="DeleteLineResult"/>;
+    /// Expected outcomes (not found, still has dependencies) are reported through <see cref="DeleteResult"/>;
     /// any other failure throws.
     /// </summary>
-    Task<DeleteLineResult> DeleteLineAsync(Guid id, CancellationToken ct = default);
+    Task<DeleteResult> DeleteLineAsync(Guid id, CancellationToken ct = default);
+
+    /// <summary>
+    /// Deletes a system through the systems API (SIS-4). Administrator only.
+    /// Expected outcomes (not found, still has tasks or sensors) are reported through <see cref="DeleteResult"/>;
+    /// any other failure throws.
+    /// </summary>
+    Task<DeleteResult> DeleteSystemAsync(Guid systemId, CancellationToken ct = default);
 }
 
-/// <summary>Outcome of a line deletion (LIN-5).</summary>
-public enum DeleteLineResult
+/// <summary>Outcome of a delete operation on a line (LIN-5) or a system (SIS-4).</summary>
+public enum DeleteResult
 {
-    /// <summary>The line was deleted.</summary>
+    /// <summary>The item was deleted.</summary>
     Deleted,
 
-    /// <summary>The line does not exist (it may have been deleted already).</summary>
+    /// <summary>The item does not exist (it may have been deleted already).</summary>
     NotFound,
 
-    /// <summary>The line was not deleted because it still has systems, plans, or assignments.</summary>
+    /// <summary>The item was not deleted because other objects still depend on it (HTTP 409).</summary>
     HasDependencies
 }

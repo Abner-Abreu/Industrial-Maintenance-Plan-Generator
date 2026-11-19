@@ -9,12 +9,14 @@ namespace IndustrialPlanGenerator.Web.Client.Services.LinesManagementService;
 /// <summary>
 /// Service for the lines management page.
 /// The list (LIN-1) returns summaries; the detail of a line (LIN-2) is requested separately by ID.
-/// Create (LIN-3), update (LIN-4) and delete (LIN-5) are administrator-only operations.
+/// Create (LIN-3), update (LIN-4) and delete (LIN-5) of lines, and deletion of systems (SIS-4),
+/// are administrator-only operations.
 /// Uses the shared contract DTOs directly.
 /// </summary>
 public sealed class LinesManagementService(HttpClient http, ILocalStorageService storage) : ILinesManagementService
 {
     private const string BaseUrl = "api/lines";
+    private const string SystemsUrl = "api/systems";
 
     // Same key used by AuthService and JwtAuthStateProvider.
     private const string TokenKey = "authToken";
@@ -51,21 +53,32 @@ public sealed class LinesManagementService(HttpClient http, ILocalStorageService
     }
 
     /// <inheritdoc />
-    public async Task<DeleteLineResult> DeleteLineAsync(Guid id, CancellationToken ct = default)
+    public Task<DeleteResult> DeleteLineAsync(Guid id, CancellationToken ct = default)
+        => DeleteAsync($"{BaseUrl}/{id}", ct);
+
+    /// <inheritdoc />
+    public Task<DeleteResult> DeleteSystemAsync(Guid systemId, CancellationToken ct = default)
+        => DeleteAsync($"{SystemsUrl}/{systemId}", ct);
+
+    /// <summary>
+    /// Sends a DELETE and translates the expected 404 and 409 responses into a <see cref="DeleteResult"/>.
+    /// Any other failure throws.
+    /// </summary>
+    private async Task<DeleteResult> DeleteAsync(string url, CancellationToken ct)
     {
         try
         {
             // The API answers 204 No Content, so there is no body to read.
-            using var response = await SendCoreAsync(HttpMethod.Delete, $"{BaseUrl}/{id}", body: null, ct);
-            return DeleteLineResult.Deleted;
+            using var response = await SendCoreAsync(HttpMethod.Delete, url, body: null, ct);
+            return DeleteResult.Deleted;
         }
         catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
         {
-            return DeleteLineResult.NotFound;
+            return DeleteResult.NotFound;
         }
         catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Conflict)
         {
-            return DeleteLineResult.HasDependencies;
+            return DeleteResult.HasDependencies;
         }
     }
 

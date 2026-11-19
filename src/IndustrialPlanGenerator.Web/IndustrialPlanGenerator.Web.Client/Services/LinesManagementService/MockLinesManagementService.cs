@@ -13,6 +13,9 @@ public sealed class FakeLinesManagementService : ILinesManagementService
     // Simulated network latency so loading states can be seen in the UI.
     private static readonly TimeSpan Latency = TimeSpan.FromMilliseconds(400);
 
+    // "Mezcladora principal": always answers HasDependencies when deleted.
+    private static readonly Guid SystemWithSensorsId = Id(201);
+
     // Source of truth: full details. Summaries are derived from it, like the real API does.
     private readonly List<LineDetailDto> _lines =
     [
@@ -99,7 +102,7 @@ public sealed class FakeLinesManagementService : ILinesManagementService
     }
 
     /// <inheritdoc />
-    public async Task<DeleteLineResult> DeleteLineAsync(Guid id, CancellationToken ct = default)
+    public async Task<DeleteResult> DeleteLineAsync(Guid id, CancellationToken ct = default)
     {
         await Task.Delay(Latency, ct);
 
@@ -107,17 +110,42 @@ public sealed class FakeLinesManagementService : ILinesManagementService
         var line = _lines.FirstOrDefault(l => l.Id == id);
         if (line is null)
         {
-            return DeleteLineResult.NotFound;
+            return DeleteResult.NotFound;
         }
 
         // The fake has no plans or assignments, only systems.
         if (line.Systems.Count > 0)
         {
-            return DeleteLineResult.HasDependencies;
+            return DeleteResult.HasDependencies;
         }
 
         _lines.Remove(line);
-        return DeleteLineResult.Deleted;
+        return DeleteResult.Deleted;
+    }
+
+    /// <inheritdoc />
+    public async Task<DeleteResult> DeleteSystemAsync(Guid systemId, CancellationToken ct = default)
+    {
+        await Task.Delay(Latency, ct);
+
+        var index = _lines.FindIndex(line => line.Systems.Any(s => s.Id == systemId));
+        if (index < 0)
+        {
+            return DeleteResult.NotFound;
+        }
+
+        // The fake has no tasks or sensors, so one system is flagged as having them to exercise the 409 path.
+        if (systemId == SystemWithSensorsId)
+        {
+            return DeleteResult.HasDependencies;
+        }
+
+        _lines[index] = _lines[index] with
+        {
+            Systems = [.. _lines[index].Systems.Where(s => s.Id != systemId)]
+        };
+
+        return DeleteResult.Deleted;
     }
 
     private static HttpRequestException NotFound(Guid id)
