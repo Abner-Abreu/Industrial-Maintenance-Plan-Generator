@@ -62,27 +62,36 @@
         else if (_detail is not null)
         {
             <form class="name-form" @onsubmit="SaveChangesAsync">
+                <div class="name-form-row">
+                    <input class="form-control"
+                           type="text"
+                           placeholder="Line name"
+                           aria-label="Line name"
+                           maxlength="100"
+                           disabled="@_saving"
+                           @bind="_editName"
+                           @bind:event="oninput"/>
+                    @if (HasChanges)
+                    {
+                        <button type="submit" class="action-button" disabled="@(!CanSave)">
+                            @(_saving ? "Saving..." : "Save")
+                        </button>
+                    }
+                </div>
                 <input class="form-control"
                        type="text"
-                       aria-label="Line name"
-                       maxlength="100"
+                       placeholder="Productive process"
+                       aria-label="Productive process"
+                       maxlength="200"
                        disabled="@_saving"
-                       @bind="_editName"
+                       @bind="_editProcess"
                        @bind:event="oninput"/>
-                @if (HasChanges)
-                {
-                    <button type="submit" class="action-button" disabled="@(!CanSave)">
-                        @(_saving ? "Saving..." : "Save")
-                    </button>
-                }
             </form>
 
             @if (_saveError is not null)
             {
                 <p class="error name-form-error">@_saveError</p>
             }
-
-            <p class="detail-process">@_detail.ProductiveProcess</p>
 
             <div class="systems-header">
                 <h4>Systems</h4>
@@ -264,6 +273,7 @@
 
     // Editing state: the line name, plus an editable draft for each system while in edit mode.
     private string _editName = string.Empty;
+    private string _editProcess = string.Empty;
     private bool _saving;
     private string? _saveError;
     private bool _editingSystems;
@@ -291,6 +301,11 @@
     private bool _deleting;
     private string? _deleteError;
 
+    // True when the line name or productive process differs from the saved values.
+    private bool HasLineChanges =>
+        _detail is not null
+        && (_editName.Trim() != _detail.Name || _editProcess.Trim() != _detail.ProductiveProcess);
+
     // True while any operation that changes the details is running.
     private bool Busy => _saving || _deletingSystem || _creatingSystem;
 
@@ -302,7 +317,7 @@
 
     // True when anything in the details differs from what is saved: the line name or any system.
     private bool HasChanges =>
-        _detail is not null && (_editName.Trim() != _detail.Name || HasSystemChanges);
+        _detail is not null && (HasLineChanges || HasSystemChanges);
 
     // System names cannot be blank.
     private bool DraftsAreValid =>
@@ -313,6 +328,7 @@
         !Busy
         && HasChanges
         && !string.IsNullOrWhiteSpace(_editName)
+        && !string.IsNullOrWhiteSpace(_editProcess)
         && DraftsAreValid;
 
     private static bool IsChanged(EquipmentSystemDto system, SystemDraft draft) =>
@@ -363,6 +379,7 @@
             {
                 _detail = detail;
                 _editName = detail.Name;
+                _editProcess = detail.ProductiveProcess;
             }
         }
         catch (OperationCanceledException)
@@ -400,15 +417,16 @@
 
         try
         {
-            // 1. Line name. Only the name changes; the productive process is sent back as it is.
-            if (_editName.Trim() != _detail.Name)
+            // 1. Line name and productive process.
+            if (HasLineChanges)
             {
-                var request = new UpdateLineRequest(_editName.Trim(), _detail.ProductiveProcess);
+                var request = new UpdateLineRequest(_editName.Trim(), _editProcess.Trim());
                 var updated = await LinesService.UpdateLineAsync(id, request, _cts.Token);
 
                 UpdateListItem(updated);
                 _detail = updated;
                 _editName = updated.Name;
+                _editProcess = updated.ProductiveProcess;
             }
 
             // 2. Edited systems, one request each. Each saved system is applied to the details right away,
@@ -704,6 +722,7 @@
             _selectedId = null;
             _detail = null;
             _editName = string.Empty;
+            _editProcess = string.Empty;
             _saveError = null;
             _deleteError = null;
             StopEditingSystems();
