@@ -1,0 +1,87 @@
+.create-user-container {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.detail-header h2 {
+    margin: 0;
+    color: var(--color-text);
+    font-family: var(--font-heading);
+}
+
+.detail-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    flex: 1;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    font-weight: 500;
+    color: var(--color-text);
+    font-family: var(--font-body);
+}
+
+.form-control {
+    padding: 0.5rem;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    font-size: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+    font-family: var(--font-body);
+    color: var(--color-text);
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgba(23, 104, 229, 0.1);
+}
+
+.form-actions {
+    margin-top: auto;
+    padding-top: 1.5rem;
+    display: flex;
+    gap: 1rem;
+}
+
+.btn-secondary {
+    background-color: var(--color-text-muted);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: var(--font-body);
+}
+
+.btn-secondary:hover {
+    background-color: var(--color-primary);
+}
+
+.error-state {
+    color: #dc3545;
+    padding: 1rem;
+    background-color: rgba(220, 53, 69, 0.1);
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    font-family: var(--font-body);
+}

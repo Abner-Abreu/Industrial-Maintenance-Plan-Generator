@@ -1,0 +1,181 @@
+@inject UserService UserService
+@inject CatalogService CatalogService
+
+<div class="create-user-container">
+    <div class="detail-header">
+        <h2>Register New Worker</h2>
+    </div>
+
+    @if (_errorMessage != null)
+    {
+        <div class="error-state">
+            <p>@_errorMessage</p>
+        </div>
+    }
+
+    <div class="detail-body">
+        <!-- Basic Fields -->
+        <div class="form-group">
+            <label>Name</label>
+            <input type="text" class="form-control" @bind="_createModel.Name" placeholder="Enter full name" />
+        </div>
+
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" class="form-control" @bind="_createModel.Password" placeholder="Minimum 8 characters" />
+        </div>
+
+        <div class="form-group">
+            <label>Role</label>
+            <select class="form-control" @bind="_createModel.Role">
+                <option value="Technician">Technician</option>
+                <option value="Operator">Operator</option>
+                <option value="PlantManager">Plant Manager</option>
+                <option value="Administrator">Administrator</option>
+            </select>
+        </div>
+
+        <!-- Dynamic Fields based on Role -->
+        @if (_createModel.Role == "Technician")
+        {
+            <div class="form-group">
+                <label>Specialty</label>
+                <input type="text" class="form-control" @bind="_createModel.Specialty" placeholder="Enter specialty" />
+            </div>
+        }
+
+        @if (_createModel.Role == "Operator")
+        {
+            <div class="form-group">
+                <label>Age</label>
+                <input type="number" class="form-control" @bind="_createModel.Age" placeholder="Minimum 18" min="18" />
+            </div>
+            <div class="form-group">
+                <label>Shift</label>
+                @if (_shifts == null)
+                {
+                    <p>Loading shifts...</p>
+                }
+                else
+                {
+                    <select class="form-control" @bind="_createModel.ShiftId">
+                        <option value="">Select a shift...</option>
+                        @foreach (var shift in _shifts)
+                        {
+                            <option value="@shift.Id">@shift.Name (@shift.Schedule)</option>
+                        }
+                    </select>
+                }
+            </div>
+        }
+
+        <!-- Action Buttons -->
+        <div class="form-actions">
+            <button class="btn btn-primary" @onclick="SaveUser">Register</button>
+            <button class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+        </div>
+    </div>
+</div>
+
+@code {
+    // Event callbacks to notify the parent component (Admin.razor)
+    [Parameter]
+    public EventCallback OnUserCreated { get; set; }
+
+    [Parameter]
+    public EventCallback OnCancel { get; set; }
+
+    private EditCreateModel _createModel = new();
+    private List<ShiftDto>? _shifts;
+    private string? _errorMessage;
+
+    /// <summary>
+    /// Loads the shifts catalog when the component initializes.
+    /// </summary>
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadShiftsAsync();
+    }
+
+    /// <summary>
+    /// Fetches the available shifts from the backend.
+    /// </summary>
+    private async Task LoadShiftsAsync()
+    {
+        var result = await CatalogService.GetShiftsAsync();
+        if (result.IsSuccess)
+        {
+            _shifts = result.Data;
+        }
+    }
+
+    /// <summary>
+    /// Validates the form and sends the creation request to the API.
+    /// Ensures no empty spaces are submitted.
+    /// </summary>
+    private async Task SaveUser()
+    {
+        // Clear previous errors
+        _errorMessage = null;
+
+        // Validation: Check for empty fields based on role
+        if (string.IsNullOrWhiteSpace(_createModel.Name) || 
+            string.IsNullOrWhiteSpace(_createModel.Password) ||
+            (_createModel.Role == "Technician" && string.IsNullOrWhiteSpace(_createModel.Specialty)) ||
+            (_createModel.Role == "Operator" && (!_createModel.Age.HasValue || !_createModel.ShiftId.HasValue)))
+        {
+            _errorMessage = "Please fill in all required fields before submitting.";
+            return;
+        }
+
+        // Additional validation for password length (backend requires min 8)
+        if (_createModel.Password.Length < 8)
+        {
+            _errorMessage = "Password must be at least 8 characters long.";
+            return;
+        }
+
+        // Map local model back to the request DTO
+        var finalRequest = new CreateUserRequest(
+            _createModel.Name,
+            _createModel.Password,
+            _createModel.Role,
+            _createModel.Role == "Technician" ? _createModel.Specialty : null,
+            _createModel.Role == "Operator" ? _createModel.Age : null,
+            _createModel.Role == "Operator" ? _createModel.ShiftId : null
+        );
+        
+        var result = await UserService.CreateUserAsync(finalRequest);
+        
+        if (result.IsSuccess)
+        {
+            // Notify parent to refresh the list and close the form
+            await OnUserCreated.InvokeAsync();
+        }
+        else
+        {
+            _errorMessage = result.ErrorMessage ?? "Failed to create user.";
+        }
+    }
+
+    /// <summary>
+    /// Cancels the creation process and returns to the default state.
+    /// </summary>
+    private async Task Cancel()
+    {
+        await OnCancel.InvokeAsync();
+    }
+    
+    /// <summary>
+    /// Local class for the form fields, as CreateUserRequest is immutable.
+    /// </summary>
+    private class EditCreateModel
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+        public string Role { get; set; } = "Technician";
+        public string? Specialty { get; set; }
+        public int? Age { get; set; }
+        public Guid? ShiftId { get; set; }
+    }
+}

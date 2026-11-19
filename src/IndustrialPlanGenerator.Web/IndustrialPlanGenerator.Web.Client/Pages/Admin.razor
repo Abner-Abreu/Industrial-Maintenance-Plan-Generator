@@ -26,10 +26,7 @@
                 <div class="admin-right-panel">
                     @if (_isCreating)
                     {
-                        <div class="panel-placeholder">
-                            <p>Create User Form will go here...</p>
-                            <button class="btn" @onclick="CancelCreate">Cancel</button>
-                        </div>
+                        <CreateUser OnUserCreated="HandleUserCreated" OnCancel="CancelCreate" />
                     }
                     else
                     {
@@ -88,6 +85,16 @@
     /// </summary>
     private async Task HandleUserUpdated()
     {
+        if (_userListRef != null)
+        {
+            await _userListRef.RefreshAsync();
+        }
+    }
+    
+    private async Task HandleUserCreated()
+    {
+        _isCreating = false;
+        
         if (_userListRef != null)
         {
             await _userListRef.RefreshAsync();
