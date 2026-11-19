@@ -297,6 +297,55 @@ a:hover {
     margin-top: 1.25rem;
 }
 
+/*
+ * Small icon button (reusable pattern), e.g. a cross to remove an item from a list.
+ * The icon is an inline SVG that takes the button's text color (stroke="currentColor").
+ * Recommended markup:
+ *   <button type="button" class="icon-button danger" title="Remove" aria-label="Remove">
+ *     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+ *          stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">...</svg>
+ *   </button>
+ */
+.icon-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    padding: 0;
+    border: 0;
+    border-radius: 0.5rem;
+    background: none;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.icon-button svg {
+    display: block;
+    width: 1rem;
+    height: 1rem;
+}
+
+.icon-button.danger {
+    color: var(--color-danger);
+}
+
+.icon-button:hover:not(:disabled) {
+    background: rgba(23, 104, 229, 0.06);
+    color: var(--color-accent);
+}
+
+.icon-button.danger:hover:not(:disabled) {
+    background: rgba(176, 0, 32, 0.08);
+    color: var(--color-danger);
+}
+
+.icon-button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
 /* --------------------------------------------------------------------- */
 /* ---- END ---- */
 /* --------------------------------------------------------------------- */
