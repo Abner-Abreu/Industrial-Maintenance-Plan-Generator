@@ -28,6 +28,14 @@
     margin-top: 0;
 }
 
+.detail-actions {
+    margin-top: 1.25rem;
+}
+
+.detail-actions .error {
+    margin: 0.5rem 0 0;
+}
+
 .system-item {
     padding: 0.625rem 0;
     border-top: 1px solid var(--color-border);

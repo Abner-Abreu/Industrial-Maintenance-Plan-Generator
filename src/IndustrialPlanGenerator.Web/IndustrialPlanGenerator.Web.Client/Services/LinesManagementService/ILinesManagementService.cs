@@ -30,8 +30,21 @@ public interface ILinesManagementService
 
     /// <summary>
     /// Deletes a line (LIN-5). Administrator only.
-    /// Throws <see cref="HttpRequestException"/> with 404 when the line does not exist,
-    /// or 409 when it still has systems, plans, or assignments.
+    /// Expected outcomes (not found, still has dependencies) are reported through <see cref="DeleteLineResult"/>;
+    /// any other failure throws.
     /// </summary>
-    Task DeleteLineAsync(Guid id, CancellationToken ct = default);
+    Task<DeleteLineResult> DeleteLineAsync(Guid id, CancellationToken ct = default);
+}
+
+/// <summary>Outcome of a line deletion (LIN-5).</summary>
+public enum DeleteLineResult
+{
+    /// <summary>The line was deleted.</summary>
+    Deleted,
+
+    /// <summary>The line does not exist (it may have been deleted already).</summary>
+    NotFound,
+
+    /// <summary>The line was not deleted because it still has systems, plans, or assignments.</summary>
+    HasDependencies
 }

@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Blazored.LocalStorage;
@@ -50,10 +51,22 @@ public sealed class LinesManagementService(HttpClient http, ILocalStorageService
     }
 
     /// <inheritdoc />
-    public async Task DeleteLineAsync(Guid id, CancellationToken ct = default)
+    public async Task<DeleteLineResult> DeleteLineAsync(Guid id, CancellationToken ct = default)
     {
-        // The API answers 204 No Content, so there is no body to read.
-        using var response = await SendCoreAsync(HttpMethod.Delete, $"{BaseUrl}/{id}", body: null, ct);
+        try
+        {
+            // The API answers 204 No Content, so there is no body to read.
+            using var response = await SendCoreAsync(HttpMethod.Delete, $"{BaseUrl}/{id}", body: null, ct);
+            return DeleteLineResult.Deleted;
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+        {
+            return DeleteLineResult.NotFound;
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Conflict)
+        {
+            return DeleteLineResult.HasDependencies;
+        }
     }
 
     /// <summary>
