@@ -1,4 +1,5 @@
 using IndustrialPlanGenerator.Services.Contracts.Lines;
+using IndustrialPlanGenerator.Services.Contracts.Systems;
 
 namespace IndustrialPlanGenerator.Web.Client.Services.LinesManagementService;
 
@@ -34,6 +35,14 @@ public interface ILinesManagementService
     /// any other failure throws.
     /// </summary>
     Task<DeleteResult> DeleteLineAsync(Guid id, CancellationToken ct = default);
+
+    /// <summary>
+    /// Edits the name and description of a system through the systems API (SIS-3). Administrator only.
+    /// The operative state and the line are not changed.
+    /// Throws <see cref="HttpRequestException"/> with 400 when the request is invalid, or 404 when the system does not exist.
+    /// </summary>
+    /// <returns>The updated system.</returns>
+    Task<EquipmentSystemDto> UpdateSystemAsync(Guid systemId, UpdateSystemRequest request, CancellationToken ct = default);
 
     /// <summary>
     /// Deletes a system through the systems API (SIS-4). Administrator only.

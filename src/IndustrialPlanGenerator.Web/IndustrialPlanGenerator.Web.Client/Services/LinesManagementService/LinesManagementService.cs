@@ -3,13 +3,14 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Blazored.LocalStorage;
 using IndustrialPlanGenerator.Services.Contracts.Lines;
+using IndustrialPlanGenerator.Services.Contracts.Systems;
 
 namespace IndustrialPlanGenerator.Web.Client.Services.LinesManagementService;
 
 /// <summary>
 /// Service for the lines management page.
 /// The list (LIN-1) returns summaries; the detail of a line (LIN-2) is requested separately by ID.
-/// Create (LIN-3), update (LIN-4) and delete (LIN-5) of lines, and deletion of systems (SIS-4),
+/// Create (LIN-3), update (LIN-4) and delete (LIN-5) of lines, and edition and deletion of systems (SIS-3, SIS-4),
 /// are administrator-only operations.
 /// Uses the shared contract DTOs directly.
 /// </summary>
@@ -55,6 +56,16 @@ public sealed class LinesManagementService(HttpClient http, ILocalStorageService
     /// <inheritdoc />
     public Task<DeleteResult> DeleteLineAsync(Guid id, CancellationToken ct = default)
         => DeleteAsync($"{BaseUrl}/{id}", ct);
+
+    /// <inheritdoc />
+    public async Task<EquipmentSystemDto> UpdateSystemAsync(
+        Guid systemId, UpdateSystemRequest request, CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        return await SendAsync<EquipmentSystemDto>(HttpMethod.Put, $"{SystemsUrl}/{systemId}", request, ct)
+               ?? throw new InvalidOperationException($"System {systemId} update returned an empty response.");
+    }
 
     /// <inheritdoc />
     public Task<DeleteResult> DeleteSystemAsync(Guid systemId, CancellationToken ct = default)

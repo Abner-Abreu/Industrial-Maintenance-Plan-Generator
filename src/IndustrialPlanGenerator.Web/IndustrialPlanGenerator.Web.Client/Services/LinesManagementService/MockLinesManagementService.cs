@@ -1,5 +1,6 @@
 using System.Net;
 using IndustrialPlanGenerator.Services.Contracts.Lines;
+using IndustrialPlanGenerator.Services.Contracts.Systems;
 
 namespace IndustrialPlanGenerator.Web.Client.Services.LinesManagementService;
 
@@ -121,6 +122,42 @@ public sealed class FakeLinesManagementService : ILinesManagementService
 
         _lines.Remove(line);
         return DeleteResult.Deleted;
+    }
+
+    /// <inheritdoc />
+    public async Task<EquipmentSystemDto> UpdateSystemAsync(
+        Guid systemId, UpdateSystemRequest request, CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        await Task.Delay(Latency, ct);
+
+        // Mimics the real API contract: 404 when the system does not exist, 400 when the request is invalid.
+        var lineIndex = _lines.FindIndex(line => line.Systems.Any(s => s.Id == systemId));
+        if (lineIndex < 0)
+        {
+            throw new HttpRequestException($"System {systemId} not found.", null, HttpStatusCode.NotFound);
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Name))
+        {
+            throw new HttpRequestException("Name is required.", null, HttpStatusCode.BadRequest);
+        }
+
+        // The operative state is not edited here.
+        var line = _lines[lineIndex];
+        var updated = line.Systems.First(s => s.Id == systemId) with
+        {
+            Name = request.Name.Trim(),
+            Description = request.Description?.Trim() ?? string.Empty
+        };
+
+        _lines[lineIndex] = line with
+        {
+            Systems = [.. line.Systems.Select(s => s.Id == systemId ? updated : s)]
+        };
+
+        return updated;
     }
 
     /// <inheritdoc />
