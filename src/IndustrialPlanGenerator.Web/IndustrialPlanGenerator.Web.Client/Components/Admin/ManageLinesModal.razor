@@ -1,0 +1,221 @@
+@inject UserService UserService
+
+@* Modal Overlay *@
+<div class="modal-overlay">
+    <div class="modal-content">
+        
+        <!-- Header Section -->
+        <div class="modal-header">
+            <h3>Manage Lines for @User.Name</h3>
+            <button class="btn-close" @onclick="CloseModal">✕</button>
+        </div>
+
+        @if (_errorMessage != null)
+        {
+            <div class="error-state">
+                <p>@_errorMessage</p>
+            </div>
+        }
+
+        <!-- Body Section: Table of Lines -->
+        <div class="modal-body">
+            @if (User.Role == "Operator")
+            {
+                <!-- OPERATOR VIEW: Single Checkbox -->
+                <table class="lines-table">
+                    <thead>
+                        <tr>
+                            <th>Line Name</th>
+                            <th style="text-align: center;">Assigned</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var line in AllLines)
+                        {
+                            <tr>
+                                <td>@line.Name</td>
+                                <td style="text-align: center;">
+                                    <input type="checkbox" 
+                                           checked="@IsOperatorLineSelected(line.Id)" 
+                                           @onchange="@(e => ToggleOperatorLine(line.Id, (bool)e.Value!))" />
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else if (User.Role == "Technician")
+            {
+                <!-- TECHNICIAN VIEW: Dual Checkboxes (Generate/Validate) -->
+                <table class="lines-table">
+                    <thead>
+                        <tr>
+                            <th>Line Name</th>
+                            <th style="text-align: center;">Generate</th>
+                            <th style="text-align: center;">Validate</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var line in AllLines)
+                        {
+                            <tr>
+                                <td>@line.Name</td>
+                                <td style="text-align: center;">
+                                    <input type="checkbox" 
+                                           checked="@IsTechLineSelected(line.Id, "Generate")" 
+                                           @onchange="@(e => ToggleTechLine(line.Id, "Generate", (bool)e.Value!))" />
+                                </td>
+                                <td style="text-align: center;">
+                                    <input type="checkbox" 
+                                           checked="@IsTechLineSelected(line.Id, "Validate")" 
+                                           @onchange="@(e => ToggleTechLine(line.Id, "Validate", (bool)e.Value!))" />
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p>This user role does not support line assignments.</p>
+            }
+        </div>
+
+        <!-- Footer Section: Actions -->
+        <div class="modal-footer">
+            <button class="btn btn-secondary" @onclick="CloseModal">Cancel</button>
+            <button class="btn btn-primary" @onclick="SaveLines" disabled="@(_isSaving)">
+                @(_isSaving ? "Saving..." : "Save Changes")
+            </button>
+        </div>
+    </div>
+</div>
+
+@code {
+    // Parameters passed from the parent (UserDetail)
+    [Parameter] public UserDetailDto User { get; set; } = default!;
+    [Parameter] public List<LineSummaryDto> AllLines { get; set; } = new();
+    
+    // Events to communicate back to the parent
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public EventCallback OnSave { get; set; }
+
+    private string? _errorMessage;
+    private bool _isSaving;
+
+    // Local state for selections to avoid mutating data until save
+    private HashSet<Guid> _selectedOperatorLines = new();
+    private Dictionary<Guid, string?> _selectedTechLines = new();
+
+    /// <summary>
+    /// Initializes the local state based on the user's current assigned lines.
+    /// </summary>
+    protected override void OnInitialized()
+    {
+        if (User.Role == "Operator")
+        {
+            foreach (var line in User.Lines)
+            {
+                _selectedOperatorLines.Add(line.LineId);
+            }
+        }
+        else if (User.Role == "Technician")
+        {
+            foreach (var line in User.Lines)
+            {
+                _selectedTechLines[line.LineId] = line.Permission;
+            }
+        }
+    }
+
+    // --- OPERATOR LOGIC ---
+
+    private bool IsOperatorLineSelected(Guid lineId) => _selectedOperatorLines.Contains(lineId);
+
+    private void ToggleOperatorLine(Guid lineId, bool isChecked)
+    {
+        if (isChecked) _selectedOperatorLines.Add(lineId);
+        else _selectedOperatorLines.Remove(lineId);
+    }
+
+    // --- TECHNICIAN LOGIC ---
+
+    private bool IsTechLineSelected(Guid lineId, string permission)
+    {
+        return _selectedTechLines.TryGetValue(lineId, out var currentPermission) && 
+               currentPermission != null && 
+               currentPermission.Contains(permission);
+    }
+
+    /// <summary>
+    /// Handles toggling a permission for a technician line.
+    /// Note: The backend expects a single permission string ("Generate" or "Validate").
+    /// If the user selects both, we send "Generate,Validate" if the backend allows it, or we enforce only one.
+    /// Based on the DTO (string? Permission), it seems the backend supports a single string.
+    /// </summary>
+    private void ToggleTechLine(Guid lineId, string permission, bool isChecked)
+    {
+        var current = _selectedTechLines.TryGetValue(lineId, out var existing) ? existing : null;
+        
+        // Simple logic: If checking, set to that permission. If unchecking, remove.
+        // (In a real scenario where both can be true, we would concatenate them).
+        if (isChecked)
+        {
+            _selectedTechLines[lineId] = permission;
+        }
+        else
+        {
+            if (current == permission)
+            {
+                _selectedTechLines.Remove(lineId);
+            }
+        }
+    }
+
+    // --- SAVE LOGIC ---
+
+    private async Task SaveLines()
+    {
+        _isSaving = true;
+        _errorMessage = null;
+
+        if (User.Role == "Operator")
+        {
+            var lineIds = _selectedOperatorLines.ToList();
+            var request = new SetOperatorLinesRequest(lineIds);
+            var result = await UserService.SetOperatorLinesAsync(User.Id, request);
+            
+            if (!result.IsSuccess)
+            {
+                _errorMessage = result.ErrorMessage ?? "Failed to update operator lines.";
+                _isSaving = false;
+                return;
+            }
+        }
+        else if (User.Role == "Technician")
+        {
+            var lines = _selectedTechLines
+                .Where(kv => kv.Value != null)
+                .Select(kv => new UserLineDto(kv.Key, kv.Value))
+                .ToList();
+            
+            var request = new SetTechnicianLinesRequest(lines);
+            var result = await UserService.SetTechnicianLinesAsync(User.Id, request);
+
+            if (!result.IsSuccess)
+            {
+                _errorMessage = result.ErrorMessage ?? "Failed to update technician lines.";
+                _isSaving = false;
+                return;
+            }
+        }
+
+        _isSaving = false;
+        await OnSave.InvokeAsync();
+    }
+
+    private async Task CloseModal()
+    {
+        await OnClose.InvokeAsync();
+    }
+}

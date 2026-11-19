@@ -1,4 +1,3 @@
-@using IndustrialPlanGenerator.Services.Contracts.Lines
 @inject UserService UserService
 @inject CatalogService CatalogService
 @inject LineService LineService
@@ -71,6 +70,12 @@
                 }
 
                 <div class="form-actions">
+                    <!-- Button to open the modal -->
+                    @if (_user.Role == "Technician" || _user.Role == "Operator")
+                    {
+                        <button class="btn btn-secondary" @onclick="OpenLinesModal">Manage Lines</button>
+                    }
+                    
                     <button class="btn btn-primary" @onclick="SaveChanges">Accept</button>
                     <button class="btn btn-secondary" @onclick="CancelEdit">Cancel</button>
                 </div>
@@ -173,12 +178,24 @@
     }
 </div>
 
+@* Render the modal if the flag is true *@
+@if (_showLinesModal && _user != null)
+{
+    <ManageLinesModal User="_user" 
+                      AllLines="_allLines ?? new()" 
+                      OnClose="CloseLinesModal" 
+                      OnSave="HandleLinesSaved" />
+}
+
 @code {
     [Parameter]
     public Guid? UserId { get; set; }
     [Parameter]
     public EventCallback OnUserUpdated { get; set; }
 
+    // Flag to control the visibility of the modal
+    private bool _showLinesModal;
+    
     private List<LineSummaryDto>? _allLines;
     private UserDetailDto? _user;
     private bool _isLoading;
@@ -242,7 +259,6 @@
                 return; // Abort edit if shifts can't be loaded
             }
         }
-
         // Prepare the edit model
         _editModel = new EditUserModel
         {
@@ -316,7 +332,35 @@
             _errorMessage = result.ErrorMessage ?? "Failed to deactivate user.";
         }
     }
+    /// <summary>
+    /// Opens the lines management modal.
+    /// </summary>
+    private void OpenLinesModal()
+    {
+        _showLinesModal = true;
+    }
 
+    /// <summary>
+    /// Closes the modal without saving.
+    /// </summary>
+    private void CloseLinesModal()
+    {
+        _showLinesModal = false;
+    }
+
+    /// <summary>
+    /// Called when lines are successfully saved. Refreshes the user data and closes the modal.
+    /// </summary>
+    private async Task HandleLinesSaved()
+    {
+        _showLinesModal = false;
+        // Reload the user to get the updated lines
+        if (_user != null)
+        {
+            await LoadUserAsync(_user.Id);
+        }
+    }
+    
     /// <summary>
     /// Local class used for editing, as the API's UpdateUserRequest is an immutable record.
     /// </summary>
