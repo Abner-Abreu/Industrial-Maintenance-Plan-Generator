@@ -1,55 +1,81 @@
 @inherits LayoutComponentBase
+@implements IDisposable
 @inject NavigationManager Navigation
 
 <div class="app-shell">
-    <aside class="sidebar">
+    <aside class="sidebar @(_navOpen ? "nav-open" : "")">
         <div class="sidebar-header">
             <span class="app-name">Rivendel</span>
+
+            @* Hamburger button, only visible on mobile *@
+            <button type="button"
+                    class="nav-toggle"
+                    aria-label="Toggle navigation"
+                    aria-expanded="@_navOpen.ToString().ToLowerInvariant()"
+                    @onclick="ToggleNav">
+                @if (_navOpen)
+                {
+                    <DynamicComponent Type="typeof(XIcon)" />
+                }
+                else
+                {
+                    <DynamicComponent Type="typeof(MenuIcon)" />
+                }
+            </button>
         </div>
 
         <hr class="sidebar-divider" />
 
-        <nav class="sidebar-nav">
-            @foreach (var item in _navItems)
-            {
-                if (CanAccess(item))
+        @* On desktop this is always visible; on mobile it becomes the dropdown panel *@
+        <div class="sidebar-collapse">
+            <nav class="sidebar-nav">
+                @foreach (var item in _navItems)
                 {
-                    <NavLink class="nav-item" href="@item.Href" Match="@item.Match">
-                        <DynamicComponent Type="item.Icon" Parameters="_iconParams"/>
-                        <span class="nav-label">@item.Label</span>
-                    </NavLink>
-                }
-            }
-        </nav>
-
-        <div class="sidebar-footer">
-            <div class="user-card">
-                <div class="user-avatar">@_initials</div>
-
-                <div class="user-info">
-                    <span class="user-name">@_userName</span>
-                    <span class="user-role">@_userRole</span>
-                </div>
-
-                <div class="user-menu-wrapper">
-                    <button type="button" class="user-menu-button" aria-label="User menu" @onclick="ToggleMenu">
-                        <DynamicComponent Type="typeof(EllipsisVerticalIcon)" Parameters="_iconParams" />
-                    </button>
-
-                    @if (_menuOpen)
+                    if (CanAccess(item))
                     {
-                        <div class="user-menu-backdrop" @onclick="CloseMenu"></div>
-                        <div class="user-menu">
-                            <button type="button" class="user-menu-item" @onclick="CloseSession">
-                                <DynamicComponent Type="typeof(LogOutIcon)" Parameters="_iconParams" />
-                                <span>Close session</span>
-                            </button>
-                        </div>
+                        <NavLink class="nav-item" href="@item.Href" Match="@item.Match" @onclick="CloseNav">
+                            <DynamicComponent Type="item.Icon" Parameters="_iconParams"/>
+                            <span class="nav-label">@item.Label</span>
+                        </NavLink>
                     }
+                }
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-card">
+                    <div class="user-avatar">@_initials</div>
+
+                    <div class="user-info">
+                        <span class="user-name">@_userName</span>
+                        <span class="user-role">@_userRole</span>
+                    </div>
+
+                    <div class="user-menu-wrapper">
+                        <button type="button" class="user-menu-button" aria-label="User menu" @onclick="ToggleMenu">
+                            <DynamicComponent Type="typeof(EllipsisVerticalIcon)" Parameters="_iconParams" />
+                        </button>
+
+                        @if (_menuOpen)
+                        {
+                            <div class="user-menu-backdrop" @onclick="CloseMenu"></div>
+                            <div class="user-menu">
+                                <button type="button" class="user-menu-item" @onclick="CloseSession">
+                                    <DynamicComponent Type="typeof(LogOutIcon)" Parameters="_iconParams" />
+                                    <span>Close session</span>
+                                </button>
+                            </div>
+                        }
+                    </div>
                 </div>
             </div>
         </div>
     </aside>
+
+    @* Dimmed overlay behind the mobile dropdown, closes it when tapped *@
+    @if (_navOpen)
+    {
+        <div class="nav-backdrop" @onclick="CloseNav"></div>
+    }
 
     <main class="content">
         @Body
@@ -91,11 +117,17 @@
     private string _initials = "?";
     private bool _menuOpen;
 
+    // whether the mobile dropdown navigation is expanded
+    private bool _navOpen;
+
     // roles of the current user, case-insensitive for comparing against NavItem.Permissions
     private HashSet<string> _userRoles = new(StringComparer.OrdinalIgnoreCase);
 
     protected override async Task OnInitializedAsync()
     {
+        // collapse the mobile menu whenever the route changes
+        Navigation.LocationChanged += OnLocationChanged;
+
         if (AuthState is null) return;
 
         var user = (await AuthState).User;
@@ -146,12 +178,28 @@
         };
     }
 
+    private void ToggleNav() => _navOpen = !_navOpen;
+    private void CloseNav() => _navOpen = false;
+
     private void ToggleMenu() => _menuOpen = !_menuOpen;
     private void CloseMenu() => _menuOpen = false;
 
     private void CloseSession()
     {
         _menuOpen = false;
+        _navOpen = false;
         Navigation.NavigateTo("/login", forceLoad: true);
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        _navOpen = false;
+        _menuOpen = false;
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        Navigation.LocationChanged -= OnLocationChanged;
     }
 }
