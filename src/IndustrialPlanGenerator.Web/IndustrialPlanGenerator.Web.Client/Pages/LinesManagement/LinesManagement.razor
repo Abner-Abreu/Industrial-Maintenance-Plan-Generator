@@ -10,7 +10,60 @@
 
 <div class="split-layout">
     <section class="split-panel">
-        <h3 class="page-subtitle">Lines</h3>
+        <div class="panel-header">
+            <h3 class="page-subtitle">Lines</h3>
+
+            @if (!_addingLine)
+            {
+                <button type="button"
+                        class="action-button secondary"
+                        disabled="@(_loadingList || _listError is not null || Busy)"
+                        @onclick="StartAddingLine">
+                    Add line
+                </button>
+            }
+        </div>
+
+        @if (_addingLine)
+        {
+            <form class="create-form" @onsubmit="CreateLineAsync">
+                <input class="form-control"
+                       type="text"
+                       placeholder="Line name"
+                       aria-label="New line name"
+                       maxlength="100"
+                       disabled="@_creatingLine"
+                       @bind="_newLineName"
+                       @bind:event="oninput"/>
+                <input class="form-control"
+                       type="text"
+                       placeholder="Productive process"
+                       aria-label="New line productive process"
+                       maxlength="200"
+                       disabled="@_creatingLine"
+                       @bind="_newLineProcess"
+                       @bind:event="oninput"/>
+
+                @if (_createLineError is not null)
+                {
+                    <p class="error">@_createLineError</p>
+                }
+
+                <div class="form-actions">
+                    <button type="button"
+                            class="action-button secondary"
+                            disabled="@_creatingLine"
+                            @onclick="StopAddingLine">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            class="action-button"
+                            disabled="@(_creatingLine || string.IsNullOrWhiteSpace(_newLineName) || string.IsNullOrWhiteSpace(_newLineProcess))">
+                        @(_creatingLine ? "Adding..." : "Add")
+                    </button>
+                </div>
+            </form>
+        }
 
         @if (_loadingList)
         {
@@ -285,6 +338,13 @@
         public string Description { get; set; } = string.Empty;
     }
 
+    // Line creation state.
+    private bool _addingLine;
+    private bool _creatingLine;
+    private string _newLineName = string.Empty;
+    private string _newLineProcess = string.Empty;
+    private string? _createLineError;
+
     // System creation state.
     private bool _addingSystem;
     private bool _creatingSystem;
@@ -307,7 +367,7 @@
         && (_editName.Trim() != _detail.Name || _editProcess.Trim() != _detail.ProductiveProcess);
 
     // True while any operation that changes the details is running.
-    private bool Busy => _saving || _deletingSystem || _creatingSystem;
+    private bool Busy => _saving || _deletingSystem || _creatingSystem || _creatingLine;
 
     // True when any system draft differs from the saved system.
     private bool HasSystemChanges =>
@@ -505,6 +565,62 @@
         {
             Systems = [.. _detail.Systems.Select(s => s.Id == updated.Id ? updated : s)]
         };
+    }
+
+    private void StartAddingLine()
+    {
+        _newLineName = string.Empty;
+        _newLineProcess = string.Empty;
+        _createLineError = null;
+        _addingLine = true;
+    }
+
+    private void StopAddingLine()
+    {
+        _addingLine = false;
+        _newLineName = string.Empty;
+        _newLineProcess = string.Empty;
+        _createLineError = null;
+    }
+
+    // Creates a line, adds it to the list and selects it so its details are shown.
+    private async Task CreateLineAsync()
+    {
+        if (Busy || string.IsNullOrWhiteSpace(_newLineName) || string.IsNullOrWhiteSpace(_newLineProcess))
+        {
+            return;
+        }
+
+        LineDetailDto? created = null;
+
+        _creatingLine = true;
+        _createLineError = null;
+
+        try
+        {
+            var request = new CreateLineRequest(_newLineName.Trim(), _newLineProcess.Trim());
+            created = await LinesService.CreateLineAsync(request, _cts.Token);
+
+            _lines.Add(new LineSummaryDto(created.Id, created.Name, created.ProductiveProcess, created.Systems.Count));
+            StopAddingLine();
+        }
+        catch (OperationCanceledException)
+        {
+            return;
+        }
+        catch (Exception)
+        {
+            _createLineError = "Could not add the line.";
+        }
+        finally
+        {
+            _creatingLine = false;
+        }
+
+        if (created is not null)
+        {
+            await SelectLineAsync(created.Id);
+        }
     }
 
     private void StartAddingSystem()
