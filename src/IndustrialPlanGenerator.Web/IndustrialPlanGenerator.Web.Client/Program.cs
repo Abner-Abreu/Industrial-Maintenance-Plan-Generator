@@ -16,8 +16,10 @@ builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<JwtAuthStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(sp =>
     sp.GetRequiredService<JwtAuthStateProvider>());
+
 builder.Services.AddScoped<ILinesManagementService, LinesManagementService>();
-builder.Services.AddScoped<ILinesManagementService, FakeLinesManagementService>();
+// Fake lines management service, works for testing, uncomment the line below and comment the one above
+// builder.Services.AddScoped<ILinesManagementService, FakeLinesManagementService>();
 
 builder.Services.AddScoped<AuthService>();
 
