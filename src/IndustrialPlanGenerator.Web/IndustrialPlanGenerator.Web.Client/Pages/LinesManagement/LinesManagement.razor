@@ -1,0 +1,313 @@
+@page "/lines"
+@attribute [Authorize(Roles = "Administrator")]
+@using IndustrialPlanGenerator.Services.Contracts.Lines
+@using IndustrialPlanGenerator.Services.Contracts.Systems
+@using IndustrialPlanGenerator.Web.Client.Services.LinesManagementService
+@implements IDisposable
+@inject ILinesManagementService LinesService
+
+<h2 class="page-title">Lines Management</h2>
+
+<div class="split-layout">
+    <section class="split-panel">
+        <div class="panel-header">
+            <h3 class="page-subtitle">Lines</h3>
+
+            @if (!_addingLine)
+            {
+                <button type="button"
+                        class="action-button secondary"
+                        disabled="@(_loadingList || _listError is not null || Busy)"
+                        @onclick="StartAddingLine">
+                    Add line
+                </button>
+            }
+        </div>
+
+        @if (_addingLine)
+        {
+            <form class="create-form" @onsubmit="CreateLineAsync">
+                <input class="form-control"
+                       type="text"
+                       placeholder="Line name"
+                       aria-label="New line name"
+                       maxlength="100"
+                       disabled="@_creatingLine"
+                       @bind="_newLineName"
+                       @bind:event="oninput"/>
+                <input class="form-control"
+                       type="text"
+                       placeholder="Productive process"
+                       aria-label="New line productive process"
+                       maxlength="200"
+                       disabled="@_creatingLine"
+                       @bind="_newLineProcess"
+                       @bind:event="oninput"/>
+
+                @if (_createLineError is not null)
+                {
+                    <p class="error">@_createLineError</p>
+                }
+
+                <div class="form-actions">
+                    <button type="button"
+                            class="action-button secondary"
+                            disabled="@_creatingLine"
+                            @onclick="StopAddingLine">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            class="action-button"
+                            disabled="@(_creatingLine || string.IsNullOrWhiteSpace(_newLineName) || string.IsNullOrWhiteSpace(_newLineProcess))">
+                        @(_creatingLine ? "Adding..." : "Add")
+                    </button>
+                </div>
+            </form>
+        }
+
+        @if (_loadingList)
+        {
+            <p class="muted">Loading...</p>
+        }
+        else if (_listError is not null)
+        {
+            <p class="error">@_listError</p>
+        }
+        else if (_lines.Count == 0)
+        {
+            <p class="muted">No lines found.</p>
+        }
+        else
+        {
+            <ul>
+                @foreach (var line in _lines)
+                {
+                    <li>
+                        <button type="button"
+                                class="list-item @(line.Id == _selectedId ? "selected" : "")"
+                                disabled="@Busy"
+                                @onclick="() => SelectLineAsync(line.Id)">
+                            <span class="list-item-content">
+                                <span class="list-item-title">@line.Name</span>
+                                <span class="list-item-subtitle">@line.ProductiveProcess</span>
+                            </span>
+                            <span class="list-item-meta" title="Systems">@line.SystemCount</span>
+                        </button>
+                    </li>
+                }
+            </ul>
+        }
+    </section>
+
+    <section class="split-panel">
+        @if (_selectedId is null)
+        {
+            <p class="muted">Select a line to see its details.</p>
+        }
+        else if (_loadingDetail)
+        {
+            <DetailsSkeleton/>
+        }
+        else if (_detailError is not null)
+        {
+            <p class="error">@_detailError</p>
+        }
+        else if (_detail is not null)
+        {
+            <form class="name-form" @onsubmit="SaveChangesAsync">
+                <div class="name-form-row">
+                    <input class="form-control"
+                           type="text"
+                           placeholder="Line name"
+                           aria-label="Line name"
+                           maxlength="100"
+                           disabled="@_saving"
+                           @bind="_editName"
+                           @bind:event="oninput"/>
+                    @if (HasChanges)
+                    {
+                        <button type="submit" class="action-button" disabled="@(!CanSave)">
+                            @(_saving ? "Saving..." : "Save")
+                        </button>
+                    }
+                </div>
+                <input class="form-control"
+                       type="text"
+                       placeholder="Productive process"
+                       aria-label="Productive process"
+                       maxlength="200"
+                       disabled="@_saving"
+                       @bind="_editProcess"
+                       @bind:event="oninput"/>
+            </form>
+
+            @if (_saveError is not null)
+            {
+                <p class="error name-form-error">@_saveError</p>
+            }
+
+            <div class="systems-header">
+                <h4>Systems</h4>
+
+                <span class="systems-header-actions">
+                    @if (!_addingSystem && !_editingSystems)
+                    {
+                        <button type="button"
+                                class="action-button secondary"
+                                disabled="@Busy"
+                                @onclick="StartAddingSystem">
+                            Add system
+                        </button>
+                    }
+
+                    @if (_detail.Systems.Count > 0)
+                    {
+                        <button type="button"
+                                class="action-button secondary"
+                                disabled="@(Busy || _addingSystem)"
+                                @onclick="ToggleSystemsEditing">
+                            @(_editingSystems ? "Cancel" : "Edit")
+                        </button>
+                    }
+                </span>
+            </div>
+
+            @if (_systemError is not null)
+            {
+                <p class="error">@_systemError</p>
+            }
+
+            @if (_addingSystem)
+            {
+                <form class="system-edit system-create" @onsubmit="CreateSystemAsync">
+                    <input class="form-control"
+                           type="text"
+                           placeholder="System name"
+                           aria-label="New system name"
+                           maxlength="100"
+                           disabled="@_creatingSystem"
+                           @bind="_newSystemName"
+                           @bind:event="oninput"/>
+                    <textarea class="form-control"
+                              placeholder="Description"
+                              aria-label="New system description"
+                              rows="2"
+                              disabled="@_creatingSystem"
+                              @bind="_newSystemDescription"
+                              @bind:event="oninput"></textarea>
+
+                    @if (_createSystemError is not null)
+                    {
+                        <p class="error">@_createSystemError</p>
+                    }
+
+                    <div class="form-actions">
+                        <button type="button"
+                                class="action-button secondary"
+                                disabled="@_creatingSystem"
+                                @onclick="StopAddingSystem">
+                            Cancel
+                        </button>
+                        <button type="submit"
+                                class="action-button"
+                                disabled="@(_creatingSystem || string.IsNullOrWhiteSpace(_newSystemName))">
+                            @(_creatingSystem ? "Adding..." : "Add")
+                        </button>
+                    </div>
+                </form>
+            }
+
+            @if (_detail.Systems.Count == 0)
+            {
+                <p class="muted">This line has no systems.</p>
+            }
+            else
+            {
+                <ul>
+                    @foreach (var system in _detail.Systems)
+                    {
+                        <li class="system-item">
+                            @if (_editingSystems && _drafts.TryGetValue(system.Id, out var draft))
+                            {
+                                <div class="system-edit">
+                                    <input class="form-control"
+                                           type="text"
+                                           aria-label="System name"
+                                           maxlength="100"
+                                           disabled="@_saving"
+                                           @bind="draft.Name"
+                                           @bind:event="oninput"/>
+                                    <textarea class="form-control"
+                                              aria-label="System description"
+                                              rows="2"
+                                              disabled="@_saving"
+                                              @bind="draft.Description"
+                                              @bind:event="oninput"></textarea>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="system-header">
+                                    <span class="system-name">@system.Name</span>
+                                    <span class="system-actions">
+                                        <span class="system-state">@system.OperativeState</span>
+                                        <button type="button"
+                                                class="icon-button danger"
+                                                title="Delete system"
+                                                aria-label="Delete @system.Name"
+                                                disabled="@Busy"
+                                                @onclick="() => DeleteSystemAsync(system.Id)">
+                                            <!-- Lucide "x" icon -->
+                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                 viewBox="0 0 24 24"
+                                                 fill="none"
+                                                 stroke="currentColor"
+                                                 stroke-width="2"
+                                                 stroke-linecap="round"
+                                                 stroke-linejoin="round"
+                                                 aria-hidden="true">
+                                                <path d="M18 6 6 18"/>
+                                                <path d="m6 6 12 12"/>
+                                            </svg>
+                                        </button>
+                                    </span>
+                                </div>
+                                <p class="system-description">@system.Description</p>
+                            }
+                        </li>
+                    }
+                </ul>
+            }
+
+            <div class="detail-actions">
+                <button type="button" class="action-button danger" @onclick="ShowDeleteConfirmation">
+                    Delete line
+                </button>
+
+                @if (_deleteError is not null)
+                {
+                    <p class="error">@_deleteError</p>
+                }
+            </div>
+        }
+    </section>
+</div>
+
+@if (_confirmingDelete && _detail is not null)
+{
+    <div class="confirm-overlay">
+        <div class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="delete-dialog-title">
+            <h4 id="delete-dialog-title">Delete line</h4>
+            <p>Are you sure you want to delete <strong>@_detail.Name</strong>? This action cannot be undone.</p>
+
+            <div class="confirm-actions">
+                <button type="button" class="action-button secondary" disabled="@_deleting" @onclick="CancelDelete">
+                    Cancel
+                </button>
+                <button type="button" class="action-button danger" disabled="@_deleting" @onclick="DeleteLineAsync">
+                    @(_deleting ? "Deleting..." : "Delete")
+                </button>
+            </div>
+        </div>
+    </div>
+}

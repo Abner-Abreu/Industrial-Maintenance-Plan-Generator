@@ -1,0 +1,141 @@
+/* Page-specific styles. Shared layout and reusable list item styles live in app.css. */
+
+/* Title of the lines list with the add button on the right. */
+.panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.panel-header .page-subtitle {
+    margin: 0;
+}
+
+/* Form to add a new line, shown above the list. */
+.create-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+/* Line fields: the name row (input and save button) on top, the productive process below. */
+.name-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 0 0 1rem;
+}
+
+.name-form-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* Compact input: it does not stretch to fill the row. */
+.name-form-row input {
+    flex: 0 1 18rem;
+    min-width: 0;
+}
+
+/* The auto left margin works as a spacer: it pushes the button to the end of the row. */
+.name-form-row .action-button {
+    margin-left: auto;
+}
+
+.name-form > input {
+    width: 100%;
+    max-width: 26rem;
+}
+
+.name-form-error {
+    margin-top: 0;
+}
+
+.detail-actions {
+    margin-top: 1.25rem;
+}
+
+.detail-actions .error {
+    margin: 0.5rem 0 0;
+}
+
+/* Title of the systems section with the edit toggle on the right. */
+.systems-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 1rem 0 0.5rem;
+}
+
+.systems-header h4 {
+    margin: 0;
+}
+
+.systems-header-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* Form to add a new system, shown above the list. */
+.system-create {
+    margin-bottom: 0.75rem;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+/* Editable name and description of a system. */
+.system-edit {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.system-edit textarea {
+    resize: vertical;
+}
+
+.system-item {
+    padding: 0.625rem 0;
+    border-top: 1px solid var(--color-border);
+}
+
+.system-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.system-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.system-name {
+    font-weight: 600;
+}
+
+.system-state {
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+}
+
+.system-description {
+    margin: 0.25rem 0 0;
+    color: var(--color-text-muted);
+}
+
+.muted {
+    color: var(--color-text-muted);
+}
+
+.error {
+    color: #b00020;
+}

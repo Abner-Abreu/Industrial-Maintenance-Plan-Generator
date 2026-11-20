@@ -9,6 +9,8 @@
     --color-text-muted: #5b6475;
     --color-border: #d5dae3;
     --color-surface: #ffffff;
+    --color-danger: #b00020;
+    --color-danger-hover: #8f001a;
 
     --font-heading: 'Manrope', system-ui, -apple-system, 'Segoe UI', sans-serif;
     --font-body: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
@@ -68,7 +70,7 @@ a:hover {
 
 .form-control {
     padding: 0.625rem 0.875rem;
-    font-family: var(--font-body);
+    font: var(--font-body);
     font-size: 0.9375rem;
     line-height: 1.5;
     color: var(--color-text);
@@ -86,3 +88,264 @@ a:hover {
 .form-control:hover:not(:focus):not(:disabled) {
     border-color: var(--color-accent);
 }
+
+/* --------------------------------------------------------------------- */
+/* ---- Shared page layout: append this block to the end of app.css ---- */
+/* --------------------------------------------------------------------- */
+
+.page-title {
+    margin: 1rem 1rem 0;
+}
+
+.page-subtitle {
+    font: var(--font-heading);
+
+}
+
+/*
+ * Two-column layout: a list of items on the left, details on the right.
+ * Stacks vertically on mobile.
+ */
+.split-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin: 1rem;
+    /* Each box is only as tall as its content, not as tall as the grid row */
+    align-items: start;
+}
+
+@media (min-width: 768px) {
+    .split-layout {
+        grid-template-columns: minmax(220px, 1fr) 2fr;
+    }
+}
+
+.split-panel {
+    min-width: 0;
+    padding: 1rem;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+}
+
+/*
+ * Selectable list items (reusable pattern).
+ * Use inside a .split-panel to render the left-hand selectable list.
+ * Recommended markup:
+ *   <ul>
+ *     <li>
+ *       <button class="list-item selected" type="button">
+ *         <span class="list-item-content">
+ *           <span class="list-item-title">Title</span>
+ *           <span class="list-item-subtitle">Subtitle</span>
+ *         </span>
+ *         <span class="list-item-meta">12</span>
+ *       </button>
+ *     </li>
+ *   </ul>
+ */
+.split-panel ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 0;
+    border-radius: 0.5rem;
+    background: none;
+    font: var(--font-body);
+    font-size: inherit;
+    line-height: inherit;
+    color: var(--color-text);
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.list-item:hover {
+    background: rgba(23, 104, 229, 0.06);
+}
+
+.list-item.selected {
+    background: rgba(23, 104, 229, 0.12);
+}
+
+.list-item-content {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.list-item-title {
+    font-weight: 500;
+}
+
+.list-item.selected .list-item-title {
+    font-weight: 700;
+}
+
+.list-item-subtitle {
+    color: var(--color-text-muted);
+    font-size: 0.8125rem;
+    font-weight: 400;
+}
+
+.list-item-meta {
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+    margin-left: 0.5rem;
+}
+
+/*
+ * Solid action button (reusable pattern).
+ * Accent background, secondary text color and the same radius as form controls.
+ * Recommended markup:
+ *   <button type="submit" class="action-button">Save</button>
+ */
+.action-button {
+    padding: 0.5rem 1rem;
+    border: 0;
+    border-radius: 0.5rem;
+    background-color: var(--color-accent);
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    line-height: 1.5;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.action-button:hover:not(:disabled) {
+    background-color: var(--color-accent-hover);
+}
+
+.action-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Destructive variant: <button class="action-button danger"> */
+.action-button.danger {
+    background-color: var(--color-danger);
+}
+
+.action-button.danger:hover:not(:disabled) {
+    background-color: var(--color-danger-hover);
+}
+
+/* Neutral variant for cancel actions: <button class="action-button secondary"> */
+.action-button.secondary {
+    border: 1px solid var(--color-border);
+    background-color: var(--color-surface);
+    color: var(--color-text);
+}
+
+.action-button.secondary:hover:not(:disabled) {
+    background-color: rgba(23, 104, 229, 0.06);
+}
+
+/*
+ * Confirmation dialog (reusable pattern).
+ * Recommended markup:
+ *   <div class="confirm-overlay">
+ *     <div class="confirm-dialog" role="dialog" aria-modal="true">
+ *       <h4>Title</h4>
+ *       <p>Message</p>
+ *       <div class="confirm-actions">
+ *         <button class="action-button secondary">Cancel</button>
+ *         <button class="action-button danger">Confirm</button>
+ *       </div>
+ *     </div>
+ *   </div>
+ */
+.confirm-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1050;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background-color: rgba(16, 28, 47, 0.45);
+}
+
+.confirm-dialog {
+    width: min(26rem, 100%);
+    padding: 1.25rem;
+    background-color: var(--color-surface);
+    border-radius: 0.5rem;
+    box-shadow: 0 0.5rem 1.5rem rgba(16, 28, 47, 0.25);
+}
+
+.confirm-dialog p {
+    margin: 0.5rem 0 0;
+    color: var(--color-text-muted);
+}
+
+.confirm-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 1.25rem;
+}
+
+/*
+ * Small icon button (reusable pattern), e.g. a cross to remove an item from a list.
+ * The icon is an inline SVG that takes the button's text color (stroke="currentColor").
+ * Recommended markup:
+ *   <button type="button" class="icon-button danger" title="Remove" aria-label="Remove">
+ *     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+ *          stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">...</svg>
+ *   </button>
+ */
+.icon-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    padding: 0;
+    border: 0;
+    border-radius: 0.5rem;
+    background: none;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.icon-button svg {
+    display: block;
+    width: 1rem;
+    height: 1rem;
+}
+
+.icon-button.danger {
+    color: var(--color-danger);
+}
+
+.icon-button:hover:not(:disabled) {
+    background: rgba(23, 104, 229, 0.06);
+    color: var(--color-accent);
+}
+
+.icon-button.danger:hover:not(:disabled) {
+    background: rgba(176, 0, 32, 0.08);
+    color: var(--color-danger);
+}
+
+.icon-button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* --------------------------------------------------------------------- */
+/* ---- END ---- */
+/* --------------------------------------------------------------------- */

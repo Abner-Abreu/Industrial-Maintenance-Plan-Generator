@@ -1,5 +1,6 @@
 using Blazored.LocalStorage;
 using IndustrialPlanGenerator.Web.Client.Services;
+using IndustrialPlanGenerator.Web.Client.Services.LinesManagementService;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
@@ -15,6 +16,10 @@ builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<JwtAuthStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(sp =>
     sp.GetRequiredService<JwtAuthStateProvider>());
+
+builder.Services.AddScoped<ILinesManagementService, LinesManagementService>();
+// Fake lines management service, works for testing, uncomment the line below and comment the one above
+// builder.Services.AddScoped<ILinesManagementService, FakeLinesManagementService>();
 
 builder.Services.AddScoped<AuthService>();
 
