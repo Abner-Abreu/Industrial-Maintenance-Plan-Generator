@@ -192,6 +192,8 @@
     public Guid? UserId { get; set; }
     [Parameter]
     public EventCallback OnUserUpdated { get; set; }
+    [Parameter]
+    public EventCallback OnUserDeleted { get; set; }
 
     // Flag to control the visibility of the modal
     private bool _showLinesModal;
@@ -326,6 +328,7 @@
         if (result.IsSuccess)
         {
             _user = null;
+            await OnUserDeleted.InvokeAsync(); 
         }
         else
         {

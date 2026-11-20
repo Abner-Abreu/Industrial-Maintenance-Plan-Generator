@@ -80,7 +80,7 @@
 @code {
     // Event callbacks to notify the parent component (Admin.razor)
     [Parameter]
-    public EventCallback OnUserCreated { get; set; }
+    public EventCallback<UserDetailDto> OnUserCreated { get; set; }
 
     [Parameter]
     public EventCallback OnCancel { get; set; }
@@ -147,10 +147,10 @@
         
         var result = await UserService.CreateUserAsync(finalRequest);
         
-        if (result.IsSuccess)
+        if (result.IsSuccess && result.Data != null)
         {
-            // Notify parent to refresh the list and close the form
-            await OnUserCreated.InvokeAsync();
+            // Notify parent and pass the created user data
+            await OnUserCreated.InvokeAsync(result.Data);
         }
         else
         {

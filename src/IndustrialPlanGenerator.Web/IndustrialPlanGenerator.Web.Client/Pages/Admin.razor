@@ -1,4 +1,6 @@
 @page "/admin"
+@inject UserService UserService
+@inject LineService LineService
 
 <PageTitle>Administration</PageTitle>
 
@@ -22,7 +24,7 @@
                     <UserList @ref="_userListRef" OnUserSelected="OnUserSelected" />
                 </div>
 
-                <!-- Right panel: User Detail or Create Form placeholder -->
+                <!-- Right panel: User Detail or Create Form -->
                 <div class="admin-right-panel">
                     @if (_isCreating)
                     {
@@ -30,12 +32,22 @@
                     }
                     else
                     {
-                        <UserDetail UserId="_selectedUserId" OnUserUpdated="HandleUserUpdated" />
+                        <UserDetail UserId="_selectedUserId" 
+                                    OnUserUpdated="HandleUserUpdated" 
+                                    OnUserDeleted="HandleUserDeleted" />
                     }
                 </div>
-
             </div>
         </div>
+
+        <!-- Modal to assign lines immediately after creation (OUTSIDE the main div) -->
+        @if (_isCreatingLinesForNewUser && _newUser != null)
+        {
+            <ManageLinesModal User="_newUser" 
+                              AllLines="_allLines ?? new()" 
+                              OnClose="CloseLinesModalForNewUser" 
+                              OnSave="HandleLinesSavedForNewUser" />
+        }
     </Authorized>
     <NotAuthorized>
         <div class="alert alert-danger m-4" role="alert">
@@ -47,21 +59,25 @@
 @code {
     // State to track which user is selected in the list
     private Guid? _selectedUserId; 
+    
     // Reference to the UserList component to call its methods directly
     private UserList? _userListRef;
-
 
     // State to toggle between viewing details and creating a new user
     private bool _isCreating;
 
+    // Variables for the post-creation lines modal
+    private UserDetailDto? _newUser;
+    private bool _isCreatingLinesForNewUser;
+    private List<LineSummaryDto>? _allLines;
+
     /// <summary>
     /// Handles the selection of a user from the list.
     /// </summary>
-    /// <param name="userId">The ID of the selected user.</param>
     private void OnUserSelected(Guid userId)
     {
         _selectedUserId = userId;
-        _isCreating = false; // Hide create form if it was open
+        _isCreating = false; 
     }
 
     /// <summary>
@@ -70,18 +86,19 @@
     private void ShowCreateForm()
     {
         _isCreating = true;
-        _selectedUserId = null; // Clear selection when creating
+        _selectedUserId = null; 
     }
 
     /// <summary>
-    /// Cancels the creation process and returns to the default state.
+    /// Cancels the creation process.
     /// </summary>
     private void CancelCreate()
     {
         _isCreating = false;
     }
+
     /// <summary>
-    /// Triggered when a user is updated in the detail panel. Refreshes the list on the left.
+    /// Triggered when a user is updated or created. Refreshes the list on the left.
     /// </summary>
     private async Task HandleUserUpdated()
     {
@@ -90,15 +107,62 @@
             await _userListRef.RefreshAsync();
         }
     }
-    
-    private async Task HandleUserCreated()
+    /// <summary>
+    /// Triggered when a user is deactivated. Refreshes the list and clears the selection.
+    /// </summary>
+    private async Task HandleUserDeleted()
     {
-        _isCreating = false;
-        
-        if (_userListRef != null)
-        {
-            await _userListRef.RefreshAsync();
-        }
+        _selectedUserId = null;
+        await HandleUserUpdated();
     }
     
+    /// <summary>
+    /// Triggered when a new user is created successfully.
+    /// Opens the lines modal if the user is Technician or Operator.
+    /// </summary>
+    private async Task HandleUserCreated(UserDetailDto createdUser)
+    {
+        _isCreating = false;
+
+        // If it's a role that needs lines, open the modal
+        if (createdUser.Role == "Technician" || createdUser.Role == "Operator")
+        {
+            if (_allLines == null)
+            {
+                var linesResult = await LineService.GetLinesAsync();
+                if (linesResult.IsSuccess)
+                {
+                    _allLines = linesResult.Data;
+                }
+            }
+
+            _newUser = createdUser;
+            _isCreatingLinesForNewUser = true;
+        }
+        else
+        {
+            // If no lines needed (Admin, PlantManager), refresh the list and finish
+            await HandleUserUpdated(); 
+        }
+    }
+
+    /// <summary>
+    /// Closes the lines modal and refreshes the user list.
+    /// </summary>
+    private async Task CloseLinesModalForNewUser()
+    {
+        _isCreatingLinesForNewUser = false;
+        _newUser = null;
+        await HandleUserUpdated();
+    }
+
+    /// <summary>
+    /// Called when lines are saved for the new user.
+    /// </summary>
+    private async Task HandleLinesSavedForNewUser()
+    {
+        _isCreatingLinesForNewUser = false;
+        _newUser = null;
+        await HandleUserUpdated();
+    }
 }
