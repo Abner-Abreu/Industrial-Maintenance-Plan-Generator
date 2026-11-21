@@ -1,8 +1,5 @@
 @page "/lines"
 @attribute [Authorize(Roles = "Administrator")]
-@using IndustrialPlanGenerator.Services.Contracts.Lines
-@using IndustrialPlanGenerator.Services.Contracts.Systems
-@using IndustrialPlanGenerator.Web.Client.Services.LinesManagementService
 @implements IDisposable
 @inject ILinesManagementService LinesService
 
