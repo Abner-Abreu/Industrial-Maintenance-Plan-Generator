@@ -109,7 +109,8 @@
     private readonly List<NavItem> _navItems =
     [
         new("Main", "", typeof(HouseIcon), [], NavLinkMatch.All),
-        new("Lines Management", "lines", typeof(FactoryIcon), [ClientRolesManagement.Administrator])
+        new("Lines Management", "lines", typeof(FactoryIcon), [ClientRolesManagement.Administrator]),
+        new("Catalogs", "catalogs", typeof(ListCheckIcon), [ClientRolesManagement.Administrator])
     ];
 
     private string _userName = "Guest";
