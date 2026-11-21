@@ -22,7 +22,8 @@ builder.Services.AddScoped<ILinesManagementService, LinesManagementService>();
 // Fake lines management service, works for testing, uncomment the line below and comment the one above
 // builder.Services.AddScoped<ILinesManagementService, FakeLinesManagementService>();
 
-builder.Services.AddScoped<ICatalogsService, MockCatalogsService>();
+builder.Services.AddScoped<ICatalogsService, CatalogsService>();
+// builder.Services.AddScoped<ICatalogsService, MockCatalogsService>();
 
 builder.Services.AddScoped<AuthService>();
 
