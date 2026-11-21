@@ -1,5 +1,6 @@
 using Blazored.LocalStorage;
 using IndustrialPlanGenerator.Web.Client.Services;
+using IndustrialPlanGenerator.Web.Client.Services.CatalogsService;
 using IndustrialPlanGenerator.Web.Client.Services.LinesManagementService;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -20,6 +21,8 @@ builder.Services.AddScoped<AuthenticationStateProvider>(sp =>
 builder.Services.AddScoped<ILinesManagementService, LinesManagementService>();
 // Fake lines management service, works for testing, uncomment the line below and comment the one above
 // builder.Services.AddScoped<ILinesManagementService, FakeLinesManagementService>();
+
+builder.Services.AddScoped<ICatalogsService, MockCatalogsService>();
 
 builder.Services.AddScoped<AuthService>();
 
