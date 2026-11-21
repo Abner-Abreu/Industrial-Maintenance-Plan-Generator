@@ -1,20 +1,26 @@
 @page "/catalogs"
 
 @attribute [Authorize(Roles = "Administrator")]
-@implements IDisposable
-@inject ICatalogsService Catalogs
 
-<h2 class="page-title">Catalogs</h2>
+@*
+    Catalogs management page (administrators only).
+    Logic lives in CatalogsManagement.razor.cs; styles in CatalogsManagement.razor.css
+    (shared patterns such as split-layout and action-button come from the global app.css).
+*@
+
+<h3 class="page-title">Catalogs</h3>
+<p class="page-title page-subtitle">Reference values used when planning maintenance.</p>
 
 <div class="split-layout">
+    @* Left: selector of the available catalogs, with the number of values in each. *@
     <div class="split-panel">
         <ul aria-label="Catalogs">
             @foreach (var (kind, title, subtitle, count) in GetEntries())
             {
                 <li>
                     <button type="button"
-                            class="list-item @(selected == kind ? "selected" : null)"
-                            aria-current="@(selected == kind ? "true" : null)"
+                            class="list-item @(_selected == kind ? "selected" : null)"
+                            aria-current="@(_selected == kind ? "true" : null)"
                             @onclick="() => SelectCatalog(kind)">
                         <span class="list-item-content">
                             <span class="list-item-title">@title</span>
@@ -27,24 +33,26 @@
         </ul>
     </div>
 
+    @* Right: content of the selected catalog. Shows loading, load error, or the catalog itself. *@
     <div class="split-panel">
-        @if (isLoading)
+        @if (_isLoading)
         {
             <p class="status-text" role="status">Loading catalogs…</p>
         }
-        else if (loadError is not null)
+        else if (_loadError is not null)
         {
             <div class="notice error" role="alert">
-                <span>@loadError</span>
+                <span>@_loadError</span>
                 <button type="button" class="action-button secondary" @onclick="LoadAsync">Retry</button>
             </div>
         }
         else
         {
-            @if (notice is not null)
+            @* Result of the last action (created, updated, deleted, or an error). Can be dismissed. *@
+            @if (_notice is not null)
             {
-                <div class="notice @(notice.IsError ? "error" : "success")" role="@(notice.IsError ? "alert" : "status")">
-                    <span>@notice.Text</span>
+                <div class="notice @(_notice.IsError ? "error" : "success")" role="@(_notice.IsError ? "alert" : "status")">
+                    <span>@_notice.Text</span>
                     <button type="button" class="icon-button" title="Dismiss" aria-label="Dismiss message"
                             @onclick="DismissNotice">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -55,46 +63,48 @@
                 </div>
             }
 
-            @switch (selected)
+            @switch (_selected)
             {
                 case CatalogKind.Shifts:
+                    @* Shifts (CAT-1 to CAT-4): header with the create button, optional form, then the table. *@
                     <div class="panel-header">
                         <div>
                             <h4>Shifts</h4>
                             <p class="panel-description">Work schedules that can be assigned to operators.</p>
                         </div>
-                        <button type="button" class="action-button" disabled="@(isBusy || form is not null)"
+                        <button type="button" class="action-button" disabled="@(_isBusy || _form is not null)"
                                 @onclick="StartCreate">
                             New shift
                         </button>
                     </div>
 
-                    @if (form is not null)
+                    @* Create/edit form. Client-side checks give quick feedback; the server remains the authority. *@
+                    @if (_form is not null)
                     {
                         <form class="shift-form" @onsubmit="SaveShiftAsync" @onsubmit:preventDefault
                               aria-labelledby="shift-form-title" novalidate>
-                            <h5 id="shift-form-title">@(form.IsNew ? "New shift" : "Edit shift")</h5>
+                            <h5 id="shift-form-title">@(_form.IsNew ? "New shift" : "Edit shift")</h5>
 
                             <div class="form-grid">
                                 <div>
                                     <label class="form-label" for="shift-name">Name</label>
                                     <input id="shift-name" class="form-control" maxlength="100"
-                                           aria-invalid="@(form.NameError is not null ? "true" : null)"
-                                           @bind="form.Name" @bind:event="oninput" />
-                                    @if (form.NameError is not null)
+                                           aria-invalid="@(_form.NameError is not null ? "true" : null)"
+                                           @bind="_form.Name" @bind:event="oninput" />
+                                    @if (_form.NameError is not null)
                                     {
-                                        <p class="field-error">@form.NameError</p>
+                                        <p class="field-error">@_form.NameError</p>
                                     }
                                 </div>
                                 <div>
                                     <label class="form-label" for="shift-schedule">Schedule</label>
                                     <input id="shift-schedule" class="form-control" maxlength="11"
                                            placeholder="06:00-14:00"
-                                           aria-invalid="@(form.ScheduleError is not null ? "true" : null)"
-                                           @bind="form.Schedule" @bind:event="oninput" />
-                                    @if (form.ScheduleError is not null)
+                                           aria-invalid="@(_form.ScheduleError is not null ? "true" : null)"
+                                           @bind="_form.Schedule" @bind:event="oninput" />
+                                    @if (_form.ScheduleError is not null)
                                     {
-                                        <p class="field-error">@form.ScheduleError</p>
+                                        <p class="field-error">@_form.ScheduleError</p>
                                     }
                                     else
                                     {
@@ -103,20 +113,22 @@
                                 </div>
                             </div>
 
-                            @if (form.FormError is not null)
+                            @* Error returned by the server on save (duplicate, invalid data, unexpected failure). *@
+                            @if (_form.FormError is not null)
                             {
-                                <p class="field-error" role="alert">@form.FormError</p>
+                                <p class="field-error" role="alert">@_form.FormError</p>
                             }
 
                             <div class="form-actions">
-                                <button type="button" class="action-button secondary" disabled="@isBusy"
+                                <button type="button" class="action-button secondary" disabled="@_isBusy"
                                         @onclick="CancelForm">Cancel</button>
-                                <button type="submit" class="action-button" disabled="@isBusy">Save</button>
+                                <button type="submit" class="action-button" disabled="@_isBusy">Save</button>
                             </div>
                         </form>
                     }
 
-                    @if (shifts.Count == 0)
+                    @* Shift list: one row per shift with edit and delete actions. *@
+                    @if (_shifts.Count == 0)
                     {
                         <p class="status-text">There are no shifts yet. Create the first one.</p>
                     }
@@ -132,7 +144,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach (var shift in shifts)
+                                    @foreach (var shift in _shifts)
                                     {
                                         <tr>
                                             <td>@shift.Name</td>
@@ -140,16 +152,17 @@
                                             <td class="actions-column">
                                                 <button type="button" class="icon-button"
                                                         title="Edit" aria-label="Edit @shift.Name"
-                                                        disabled="@isBusy" @onclick="() => StartEdit(shift)">
+                                                        disabled="@_isBusy" @onclick="() => StartEdit(shift)">
                                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                                          stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                                         <path d="M12 20h9" />
                                                         <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z" />
                                                     </svg>
                                                 </button>
+                                                @* Opens the confirmation dialog; the delete happens in ConfirmDeleteAsync. *@
                                                 <button type="button" class="icon-button danger"
                                                         title="Delete" aria-label="Delete @shift.Name"
-                                                        disabled="@isBusy" @onclick="() => pendingDelete = shift">
+                                                        disabled="@_isBusy" @onclick="() => _pendingDelete = shift">
                                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                                          stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                                         <path d="M3 6h18" />
@@ -168,57 +181,65 @@
                     break;
 
                 case CatalogKind.MaintenanceTypes:
-                    @FixedValues("Maintenance types", "Classify each maintenance task.", maintenanceTypes)
+                    @* CAT-5: fixed domain values, read-only. *@
+                    @FixedValues("Maintenance types", "Classify each maintenance task.", _maintenanceTypes)
                     break;
 
                 case CatalogKind.Criticalities:
-                    @FixedValues("Criticality levels", "Indicate how severe a failure or task is.", criticalities)
+                    @* CAT-6: fixed domain values, read-only. *@
+                    @FixedValues("Criticality levels", "Indicate how severe a failure or task is.", _criticalities)
                     break;
             }
         }
     </div>
 </div>
 
-@if (pendingDelete is not null)
+@* Delete confirmation dialog, shown while a shift is waiting in pendingDelete. *@
+@if (_pendingDelete is not null)
 {
     <div class="confirm-overlay">
         <div class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="delete-title">
             <h4 id="delete-title">Delete shift</h4>
-            <p>Delete "@pendingDelete.Name" (@pendingDelete.Schedule)? This action cannot be undone.</p>
+            <p>Delete "@_pendingDelete.Name" (@_pendingDelete.Schedule)? This action cannot be undone.</p>
             <div class="confirm-actions">
-                <button type="button" class="action-button secondary" disabled="@isBusy"
-                        @onclick="() => pendingDelete = null">Cancel</button>
-                <button type="button" class="action-button danger" disabled="@isBusy"
+                <button type="button" class="action-button secondary" disabled="@_isBusy"
+                        @onclick="() => _pendingDelete = null">Cancel</button>
+                <button type="button" class="action-button danger" disabled="@_isBusy"
                         @onclick="ConfirmDeleteAsync">Delete</button>
             </div>
         </div>
     </div>
 }
 
-@code
-{
+@code {
+    /// <summary>
+    /// Renders a read-only catalog of fixed values (maintenance types, criticality levels):
+    /// a header, a note that the values cannot be edited here, and the list of values.
+    /// </summary>
+    /// <param name="title">Catalog name shown as the heading.</param>
+    /// <param name="description">One-line explanation of what the catalog is for.</param>
+    /// <param name="values">The values to list.</param>
     private RenderFragment FixedValues(string title, string description, IReadOnlyList<string> values) =>
-   @<section>
-       <div class="panel-header">
-           <div>
-               <h4>@title</h4>
-               <p class="panel-description">@description</p>
-           </div>
-       </div>
-       <p class="field-hint">These values are defined by the system and cannot be edited here.</p>
-       @if (values.Count == 0)
-       {
-           <p class="status-text">There are no values.</p>
-       }
-       else
-       {
-           <ul class="value-list">
-               @foreach (var value in values)
-               {
-                   <li>@value</li>
-               }
-           </ul>
-       }
-   </section>;
-    
+    @<section>
+        <div class="panel-header">
+            <div>
+                <h4>@title</h4>
+                <p class="panel-description">@description</p>
+            </div>
+        </div>
+        <p class="field-hint">These values are defined by the system and cannot be edited here.</p>
+        @if (values.Count == 0)
+        {
+            <p class="status-text">There are no values.</p>
+        }
+        else
+        {
+            <ul class="value-list">
+                @foreach (var value in values)
+                {
+                    <li>@value</li>
+                }
+            </ul>
+        }
+    </section>;
 }
